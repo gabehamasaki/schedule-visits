@@ -16,6 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 try {
+    // Setup PHP-DI Container
+    $containerBuilder = new DI\ContainerBuilder();
+    $containerBuilder->addDefinitions(__DIR__ . '/../config/dependencies.php');
+    $container = $containerBuilder->build();
+
     // 1. Load routes from separte file
     $routeDefinitionCallback = require __DIR__ . '/../routes/web.php';
     $dispatcher = FastRoute\simpleDispatcher($routeDefinitionCallback);
@@ -57,8 +62,8 @@ try {
                 throw new Exception("Controller class $controllerClass not found.");
             }
 
-            // Instantiate the controller
-            $controlleInstance = new $controllerClass();
+            // Instantiate the controller with dependencies from the container
+            $controlleInstance = $container->get($controllerClass);
 
             // Read the request body for POST, PUT, DELETE methods
             $requestBody = [];
