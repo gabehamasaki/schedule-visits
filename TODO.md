@@ -54,4 +54,3 @@
 ## Por último
 
 - [ ] CI rodando testes e phpstan
-- [ ] Confirmar que o repo tá público
