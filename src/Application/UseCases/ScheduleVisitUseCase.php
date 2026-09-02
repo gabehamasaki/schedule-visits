@@ -10,19 +10,13 @@ use Exception;
 class ScheduleVisitUseCase
 {
 
-    private AppointmentRepositoryInterface $appointmentRepository;
-    private VehicleRepositoryInterface $vehicleRepository;
-    private GetAvailableHoursUseCase $getAvailableHoursUseCase;
+
 
     public function __construct(
-        AppointmentRepositoryInterface $appointmentRepository,
-        VehicleRepositoryInterface $vehicleRepository,
-        GetAvailableHoursUseCase $getAvailableHoursUseCase
-    ) {
-        $this->appointmentRepository = $appointmentRepository;
-        $this->vehicleRepository = $vehicleRepository;
-        $this->getAvailableHoursUseCase = $getAvailableHoursUseCase;
-    }
+        private AppointmentRepositoryInterface $appointmentRepository,
+        private VehicleRepositoryInterface $vehicleRepository,
+        private GetAvailableHoursUseCase $getAvailableHoursUseCase
+    ) {}
 
     public function execute(array $data): Appointment
     {

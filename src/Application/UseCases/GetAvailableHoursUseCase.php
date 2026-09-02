@@ -6,12 +6,8 @@ use App\Domain\Repositories\AppointmentRepositoryInterface;
 
 class GetAvailableHoursUseCase
 {
-    private AppointmentRepositoryInterface $appointmentRepository;
 
-    public function __contruct(AppointmentRepositoryInterface $appointmentRepository)
-    {
-        $this->appointmentRepository = $appointmentRepository;
-    }
+    public function __construct(private AppointmentRepositoryInterface $appointmentRepository) {}
 
     public function execute(int $vehicleId, string $date): array
     {
