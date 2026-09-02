@@ -1,0 +1,23 @@
+{
+    "name": "hamasakis/schedule-visits",
+    "type": "project",
+    "require": {
+        "nikic/fast-route": "^1.3",
+        "php-di/php-di": "^7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.3",
+        "phpstan/phpstan": "^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Gabriel Hamasaki",
+            "email": "gabrielhamasaki82@outlook.com"
+        }
+    ]
+}
