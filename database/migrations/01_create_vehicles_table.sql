@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS vehicles (
+    id SERIAL PRIMARY KEY,
+    brand VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    version VARCHAR(100) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    image_url VARCHAR(255) NOT NULL
+);
