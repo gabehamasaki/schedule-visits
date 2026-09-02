@@ -12,3 +12,5 @@ composer.phar
 
 # Build data
 /build/
+
+.env

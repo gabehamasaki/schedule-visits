@@ -1,0 +1,6 @@
+domains:
+  - schedule-visits
+php_version: "8.5"
+node_version: "22"
+services:
+  - postgres
