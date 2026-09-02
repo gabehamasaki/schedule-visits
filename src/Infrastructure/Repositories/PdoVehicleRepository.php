@@ -10,6 +10,24 @@ class PdoVehicleRepository implements VehicleRepositoryInterface
 {
     public function __construct(private PDO $connection) {}
 
+    public function findAll(): array
+    {
+        $stmt = $this->connection->query("SELECT * FROM vehicles");
+        $vehiclesData = $stmt->fetchAll();
+
+        return array_map(function ($data) {
+            return new Vehicle(
+                id: (int) $data['id'],
+                brand: $data['brand'],
+                model: $data['model'],
+                version: $data['version'],
+                price: (float) $data['price'],
+                location: $data['location'],
+                imageUrl: $data['image_url']
+            );
+        }, $vehiclesData);
+    }
+
     public function findById(int $id): ?Vehicle
     {
         $stmt = $this->connection->prepare("SELECT * FROM vehicles WHERE id = :id");
