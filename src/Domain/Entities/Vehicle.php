@@ -43,6 +43,9 @@ class Vehicle
         return $this->imageUrl;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

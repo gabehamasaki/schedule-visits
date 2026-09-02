@@ -45,9 +45,9 @@ class ScheduleVisitUseCase
         $appointment = new Appointment(
             id: null,
             vehicleId: $data->vehicleId,
-            customerName: $data->name ?? '',
-            customerEmail: $data->email ?? '',
-            customerPhone: $data->phone ?? '',
+            customerName: $data->name,
+            customerEmail: $data->email,
+            customerPhone: $data->phone,
             appointmentDate: $data->date,
             appointmentTime: $data->time
         );
@@ -55,7 +55,7 @@ class ScheduleVisitUseCase
         $savedAppointment = $this->appointmentRepository->save($appointment);
 
         return new AppointmentResponseDTO(
-            id: $savedAppointment->getId(),
+            id: $savedAppointment->getId() ?? 0,
             vehicleId: $savedAppointment->getVehicleId(),
             customerName: $savedAppointment->getCustomerName(),
             customerEmail: $savedAppointment->getCustomerEmail(),

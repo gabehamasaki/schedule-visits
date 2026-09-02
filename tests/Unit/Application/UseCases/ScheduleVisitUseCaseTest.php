@@ -3,6 +3,7 @@
 namespace Tests\Unit\Application\UseCases;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use App\Application\UseCases\ScheduleVisitUseCase;
 use App\Application\UseCases\GetAvailableHoursUseCase;
 use App\Domain\Repositories\AppointmentRepositoryInterface;
@@ -16,9 +17,9 @@ use Exception;
 
 class ScheduleVisitUseCaseTest extends TestCase
 {
-    private $appointmentRepoMock;
-    private $vehicleRepoMock;
-    private $getAvailableHoursMock;
+    private MockObject&AppointmentRepositoryInterface $appointmentRepoMock;
+    private MockObject&VehicleRepositoryInterface $vehicleRepoMock;
+    private MockObject&GetAvailableHoursUseCase $getAvailableHoursMock;
     private ScheduleVisitUseCase $useCase;
 
     protected function setUp(): void
@@ -41,7 +42,7 @@ class ScheduleVisitUseCaseTest extends TestCase
             ->willReturn(null);
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageIs("Vehicle not found.");
+        $this->expectExceptionMessage("Vehicle not found.");
 
         $dto = new ScheduleVisitDTO(999, 'Test', 'test@test.com', '11', '2026-09-02', '10:00');
         $this->useCase->execute($dto);
@@ -49,7 +50,7 @@ class ScheduleVisitUseCaseTest extends TestCase
 
     public function testThrowsExceptionIfTimeSlotIsUnavailable(): void
     {
-        $vehicle = new Vehicle(1, 'VW', 'Polo', '1.0', 70000, 'SP', 'url');
+        $vehicle = new Vehicle(1, 'VW', 'Polo', '1.0', 70000.0, 'SP', 'url');
 
         $this->vehicleRepoMock->method('findById')->willReturn($vehicle);
 
@@ -58,7 +59,7 @@ class ScheduleVisitUseCaseTest extends TestCase
             ->willReturn(new AvailableHoursResponseDTO(['11:00']));
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessageIs("This time slot is not available or outside business hours.");
+        $this->expectExceptionMessage("This time slot is not available or outside business hours.");
 
         $dto = new ScheduleVisitDTO(1, 'Test', 'test@test.com', '11', '2026-09-02', '10:00');
         $this->useCase->execute($dto);
@@ -66,7 +67,7 @@ class ScheduleVisitUseCaseTest extends TestCase
 
     public function testSchedulesSuccessfullyAndReturnsResponseDTO(): void
     {
-        $vehicle = new Vehicle(1, 'VW', 'Polo', '1.0', 70000, 'SP', 'url');
+        $vehicle = new Vehicle(1, 'VW', 'Polo', '1.0', 70000.0, 'SP', 'url');
 
         $this->vehicleRepoMock->method('findById')->willReturn($vehicle);
 

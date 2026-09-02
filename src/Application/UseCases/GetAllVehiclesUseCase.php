@@ -9,6 +9,9 @@ class GetAllVehiclesUseCase
 {
     public function __construct(private VehicleRepositoryInterface $vehicleRepository) {}
 
+    /**
+     * @return VehicleResponseDTO[]
+     */
     public function execute(): array
     {
         $vehicles = $this->vehicleRepository->findAll();

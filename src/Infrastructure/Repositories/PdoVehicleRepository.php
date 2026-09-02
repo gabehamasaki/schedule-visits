@@ -10,9 +10,18 @@ class PdoVehicleRepository implements VehicleRepositoryInterface
 {
     public function __construct(private PDO $connection) {}
 
+    /**
+     *
+     * @return Vehicle[]
+     */
     public function findAll(): array
     {
         $stmt = $this->connection->query("SELECT * FROM vehicles");
+
+        if (!$stmt) {
+            throw new \RuntimeException("Failed to execute query: " . implode(", ", $this->connection->errorInfo()));
+        }
+
         $vehiclesData = $stmt->fetchAll();
 
         return array_map(function ($data) {

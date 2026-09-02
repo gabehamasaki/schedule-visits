@@ -43,6 +43,9 @@ class Appointment
         return $this->appointmentTime;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

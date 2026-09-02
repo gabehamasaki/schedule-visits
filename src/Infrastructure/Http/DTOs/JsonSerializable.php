@@ -12,6 +12,9 @@ class ApiResponseDTO implements JsonSerializable
         public readonly ?string $message = null
     ) {}
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         $response = ['status' => $this->status];

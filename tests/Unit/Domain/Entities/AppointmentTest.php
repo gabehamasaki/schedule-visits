@@ -24,7 +24,7 @@ class AppointmentTest extends TestCase
         $this->assertEquals('Gabriel', $appointment->getCustomerName());
 
         $arrayData = $appointment->toArray();
-        $this->assertIsArray($arrayData);
+        $this->assertArrayHasKey('customerEmail', $arrayData);
         $this->assertEquals('2026-09-02', $arrayData['appointmentDate']);
     }
 }

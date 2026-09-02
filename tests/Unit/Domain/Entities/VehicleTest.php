@@ -24,7 +24,7 @@ class VehicleTest extends TestCase
         $this->assertEquals(850000.00, $vehicle->getPrice());
 
         $arrayData = $vehicle->toArray();
-        $this->assertIsArray($arrayData);
+        $this->assertArrayHasKey('model', $arrayData);
         $this->assertEquals('911', $arrayData['model']);
     }
 }
