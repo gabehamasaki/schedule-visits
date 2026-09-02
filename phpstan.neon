@@ -3,4 +3,5 @@ parameters:
     paths:
         - src
         - tests
+        - routes
     phpVersion: 80500 # PHP 8.5
