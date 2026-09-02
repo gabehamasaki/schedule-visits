@@ -15,6 +15,9 @@
             "App\\": "src/"
         }
     },
+    "scripts": {
+        "stan": "vendor/bin/phpstan analyse"
+    },
     "authors": [
         {
             "name": "Gabriel Hamasaki",
