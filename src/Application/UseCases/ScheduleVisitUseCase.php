@@ -2,6 +2,7 @@
 
 namespace App\Application\UseCases;
 
+use App\Application\DTOs\AppointmentResponseDTO;
 use App\Application\DTOs\GetAvailableHoursDTO;
 use App\Application\DTOs\ScheduleVisitDTO;
 use App\Domain\Entities\Appointment;
@@ -20,7 +21,7 @@ class ScheduleVisitUseCase
         private GetAvailableHoursUseCase $getAvailableHoursUseCase
     ) {}
 
-    public function execute(ScheduleVisitDTO $data): Appointment
+    public function execute(ScheduleVisitDTO $data): AppointmentResponseDTO
     {
         // 1. Checkl if the vehicle exists
         $vehicle = $this->vehicleRepository->findById($data->vehicleId);
@@ -53,6 +54,14 @@ class ScheduleVisitUseCase
 
         $savedAppointment = $this->appointmentRepository->save($appointment);
 
-        return $savedAppointment;
+        return new AppointmentResponseDTO(
+            id: $savedAppointment->getId(),
+            vehicleId: $savedAppointment->getVehicleId(),
+            customerName: $savedAppointment->getCustomerName(),
+            customerEmail: $savedAppointment->getCustomerEmail(),
+            customerPhone: $savedAppointment->getCustomerPhone(),
+            appointmentDate: $savedAppointment->getAppointmentDate(),
+            appointmentTime: $savedAppointment->getAppointmentTime()
+        );
     }
 }
