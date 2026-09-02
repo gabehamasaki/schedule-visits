@@ -2,6 +2,8 @@
 
 namespace App\Application\UseCases;
 
+use App\Application\DTOs\GetAvailableHoursDTO;
+use App\Application\DTOs\ScheduleVisitDTO;
 use App\Domain\Entities\Appointment;
 use App\Domain\Repositories\AppointmentRepositoryInterface;
 use App\Domain\Repositories\VehicleRepositoryInterface;
@@ -18,36 +20,35 @@ class ScheduleVisitUseCase
         private GetAvailableHoursUseCase $getAvailableHoursUseCase
     ) {}
 
-    public function execute(array $data): Appointment
+    public function execute(ScheduleVisitDTO $data): Appointment
     {
-        $vehicleID = (int) $data['vehicle_id'] ?? null;
-
-        $date = $data['date'] ?? null;
-        $time = $data['time'] ?? null;
-
         // 1. Checkl if the vehicle exists
-        $vehicle = $this->vehicleRepository->findById($vehicleID);
+        $vehicle = $this->vehicleRepository->findById($data->vehicleId);
         if (!$vehicle) {
             throw new Exception('Vehicle not found.');
         }
 
-        // 2. Get the dynamically available hours for the given vehicle and date
-        $availableHours = $this->getAvailableHoursUseCase->execute($vehicleID, $date);
 
-        // 3. Validate if the requested time is actually available and within business hours
-        if (!in_array($time, $availableHours)) {
+        // 2. Get the dynamically available hours for the given vehicle and date
+        $dto = new GetAvailableHoursDTO(
+            vehicleId: $data->vehicleId,
+            date: $data->date
+        );
+        $availableHoursResponse = $this->getAvailableHoursUseCase->execute($dto);
+
+        if (!in_array($data->time, $availableHoursResponse->availableHours)) {
             throw new Exception("This time slot is not available or outside business hours.");
         }
 
         // 4. Create and save the appointment
         $appointment = new Appointment(
             id: null,
-            vehicleId: $vehicleID,
-            customerName: $data['customer_name'] ?? '',
-            customerEmail: $data['customer_email'] ?? '',
-            customerPhone: $data['customer_phone'] ?? '',
-            appointmentDate: $date,
-            appointmentTime: $time
+            vehicleId: $data->vehicleId,
+            customerName: $data->name ?? '',
+            customerEmail: $data->email ?? '',
+            customerPhone: $data->phone ?? '',
+            appointmentDate: $data->date,
+            appointmentTime: $data->time
         );
 
         $savedAppointment = $this->appointmentRepository->save($appointment);

@@ -2,14 +2,17 @@
 
 namespace App\Application\UseCases;
 
+use App\Application\DTOs\GetAvailableHoursDTO;
+use App\Application\DTOs\AvailableHoursResponseDTO; // NEW
 use App\Domain\Repositories\AppointmentRepositoryInterface;
 
 class GetAvailableHoursUseCase
 {
+    public function __construct(
+        private AppointmentRepositoryInterface $appointmentRepository
+    ) {}
 
-    public function __construct(private AppointmentRepositoryInterface $appointmentRepository) {}
-
-    public function execute(int $vehicleId, string $date): array
+    public function execute(GetAvailableHoursDTO $dto): AvailableHoursResponseDTO
     {
         $businessHours = [
             '09:00',
@@ -24,14 +27,14 @@ class GetAvailableHoursUseCase
             '18:00'
         ];
 
-        $bookedHours = $this->appointmentRepository->getBookedHours($vehicleId, $date);
+        $bookedHours = $this->appointmentRepository->getBookedHours($dto->vehicleId, $dto->date);
 
-        $formattedBookedHours = array_map(function ($hour) {
-            return substr($hour, 0, 5); // Format to HH:MM
+        $formattedBookedHours = array_map(function (string $time) {
+            return substr($time, 0, 5);
         }, $bookedHours);
 
         $availableHours = array_diff($businessHours, $formattedBookedHours);
 
-        return array_values($availableHours);
+        return new AvailableHoursResponseDTO(array_values($availableHours));
     }
 }
