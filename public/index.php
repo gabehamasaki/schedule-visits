@@ -1,5 +1,8 @@
 <?php
 
+use App\Infrastructure\Http\Request;
+use App\Infrastructure\Http\Response;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
@@ -41,13 +44,11 @@ try {
 
     switch ($routeInfo[0]) {
         case FastRoute\Dispatcher::NOT_FOUND:
-            http_response_code(404);
-            echo json_encode(['error' => 'Not Found']);
+            Response::notFound()->send();
             break;
         case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
             $allowedMethods = $routeInfo[1];
-            http_response_code(405);
-            echo json_encode(['error' => 'Method Not Allowed', 'allowed_methods' => $allowedMethods]);
+            Response::methodNotAllowed($allowedMethods)->send();
             break;
         case FastRoute\Dispatcher::FOUND:
 
@@ -71,11 +72,19 @@ try {
                 $requestBody = json_decode(file_get_contents('php://input'), true);
             }
 
-            // Execute the controller method with the appropriate parameters
-            $response = call_user_func_array([$controlleInstance, $method], [$requestBody, $routerParams]);
+            // Create a Request object
+            $request = new Request(
+                $httpMethod,
+                $uri,
+                $routerParams,
+                $_GET,
+                $requestBody
+            );
 
-            // Send the response
-            echo json_encode($response);
+            // Execute the controller method with the appropriate parameters
+            $response = call_user_func_array([$controlleInstance, $method], [$request]);
+
+            $response->send();
             break;
     }
 } catch (Exception $e) {
