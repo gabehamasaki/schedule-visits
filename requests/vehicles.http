@@ -1,0 +1,39 @@
+# Vehicle endpoints — implemented
+#
+# Base URL: pick the one matching how you are running the API.
+@baseUrl = http://localhost:8080/api/v1
+# @baseUrl = http://schedule-visits.test/api/v1
+
+### List all vehicles -> 200
+GET {{baseUrl}}/vehicles
+Accept: application/json
+
+### Get a single vehicle -> 200
+GET {{baseUrl}}/vehicles/1
+Accept: application/json
+
+### Get the other seeded vehicle -> 200
+GET {{baseUrl}}/vehicles/2
+Accept: application/json
+
+### Unknown vehicle -> 404 (thrown by the controller)
+GET {{baseUrl}}/vehicles/9999
+Accept: application/json
+
+### Non-numeric id -> 404 (rejected by the {id:\d+} route, never reaches the controller)
+GET {{baseUrl}}/vehicles/abc
+Accept: application/json
+
+### Wrong method on an existing route -> 405 with allowed_methods
+POST {{baseUrl}}/vehicles/1
+Content-Type: application/json
+
+{}
+
+### Unknown route -> 404
+GET {{baseUrl}}/unknown
+Accept: application/json
+
+### Accents come back unescaped thanks to JSON_UNESCAPED_UNICODE ("São Paulo - SP")
+GET {{baseUrl}}/vehicles/1
+Accept: application/json

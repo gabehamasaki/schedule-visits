@@ -1,0 +1,34 @@
+# Availability endpoint — NOT IMPLEMENTED YET
+#
+# Depends on: AvailabilityController + route
+#   $router->get('/vehicles/{vehicleId:\d+}/available-hours', AvailabilityController::class . '@index');
+#
+# Until then every request here answers 404 (unknown route).
+
+@baseUrl = http://localhost:8080/api/v1
+# @baseUrl = http://schedule-visits.test/api/v1
+
+### Available hours for a date -> 200, business hours minus booked ones
+GET {{baseUrl}}/vehicles/1/available-hours?date=2026-09-10
+Accept: application/json
+
+### Date with no bookings -> 200 with all 10 business hours (09:00 to 18:00)
+GET {{baseUrl}}/vehicles/2/available-hours?date=2026-12-24
+Accept: application/json
+
+### Missing date -> 400
+GET {{baseUrl}}/vehicles/1/available-hours
+Accept: application/json
+
+### Malformed date -> 400
+GET {{baseUrl}}/vehicles/1/available-hours?date=10-09-2026
+Accept: application/json
+
+### Date sent as an array -> 400, not a 500
+# Request::query() returns null for non-scalar values, so this must not blow up.
+GET {{baseUrl}}/vehicles/1/available-hours?date[]=2026-09-10
+Accept: application/json
+
+### Unknown vehicle -> 404
+GET {{baseUrl}}/vehicles/9999/available-hours?date=2026-09-10
+Accept: application/json

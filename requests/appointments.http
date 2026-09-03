@@ -1,0 +1,113 @@
+# Appointment endpoint — NOT IMPLEMENTED YET
+#
+# Depends on: AppointmentController + route
+#   $router->post('/appointments', AppointmentController::class . '@store');
+#
+# Until then every request here answers 404 (unknown route).
+
+@baseUrl = http://localhost:8080/api/v1
+# @baseUrl = http://schedule-visits.test/api/v1
+
+### Schedule a visit -> 201
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "name": "Gabriel Hamasaki",
+  "email": "gabriel.hamasaki@exata.it",
+  "phone": "11987654321",
+  "date": "2026-09-10",
+  "time": "10:00"
+}
+
+### Same slot again -> 409
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "name": "Outro Cliente",
+  "email": "outro@example.com",
+  "phone": "11912345678",
+  "date": "2026-09-10",
+  "time": "10:00"
+}
+
+### Time outside business hours -> 409
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "name": "Gabriel Hamasaki",
+  "email": "gabriel.hamasaki@exata.it",
+  "phone": "11987654321",
+  "date": "2026-09-10",
+  "time": "23:00"
+}
+
+### Unknown vehicle -> 404
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+
+{
+  "vehicleId": 9999,
+  "name": "Gabriel Hamasaki",
+  "email": "gabriel.hamasaki@exata.it",
+  "phone": "11987654321",
+  "date": "2026-09-10",
+  "time": "11:00"
+}
+
+### Missing required fields -> 400 with one message per field in "errors"
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+
+{
+  "vehicleId": 1
+}
+
+### Invalid email -> 400
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "name": "Gabriel Hamasaki",
+  "email": "not-an-email",
+  "phone": "11987654321",
+  "date": "2026-09-10",
+  "time": "11:00"
+}
+
+### Invalid phone -> 400
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "name": "Gabriel Hamasaki",
+  "email": "gabriel.hamasaki@exata.it",
+  "phone": "123",
+  "date": "2026-09-10",
+  "time": "11:00"
+}
+
+### Malformed JSON body -> must not return 500
+# Request::fromGlobals() guards with is_array(), so the body becomes [] and
+# validation answers 400.
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+
+{ "vehicleId": 1,
+
+### Empty body -> 400
+POST {{baseUrl}}/appointments
+Content-Type: application/json
+
+### CORS preflight -> 200 with no body
+OPTIONS {{baseUrl}}/appointments
+Origin: http://localhost:5173
+Access-Control-Request-Method: POST
+Access-Control-Request-Headers: Content-Type
