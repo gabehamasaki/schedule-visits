@@ -20,9 +20,9 @@ class ScheduleVisitUseCase
 
     public function execute(ScheduleVisitDTO $data): AppointmentResponseDTO
     {
-        // 1. Checkl if the vehicle exists
+        // 1. Check if the vehicle exists
         $vehicle = $this->vehicleRepository->findById($data->vehicleId);
-        if (!$vehicle) {
+        if (is_null($vehicle)) {
             throw new Exception('Vehicle not found.');
         }
 
