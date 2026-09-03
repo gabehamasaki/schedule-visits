@@ -14,3 +14,7 @@ composer.phar
 /build/
 
 .env
+
+# PHP CS Fixer configuration
+/.php-cs-fixer.cache
+/.php-cs-fixer.php
