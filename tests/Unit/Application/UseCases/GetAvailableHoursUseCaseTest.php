@@ -25,7 +25,7 @@ class GetAvailableHoursUseCaseTest extends TestCase
 
         $dto = new GetAvailableHoursDTO(
             vehicleId: 1,
-            date: '2026-09-02'
+            date: '2026-09-02',
         );
 
         // 2. Act

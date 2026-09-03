@@ -16,7 +16,7 @@ class VehicleTest extends TestCase
             version: 'Carrera',
             price: 850000.00,
             location: 'São Paulo',
-            imageUrl: 'http://example.com/porsche.jpg'
+            imageUrl: 'http://example.com/porsche.jpg',
         );
 
         $this->assertEquals(1, $vehicle->getId());

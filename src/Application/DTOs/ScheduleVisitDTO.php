@@ -10,6 +10,6 @@ class ScheduleVisitDTO
         public readonly string $email,
         public readonly string $phone,
         public readonly string $date,
-        public readonly string $time
+        public readonly string $time,
     ) {}
 }

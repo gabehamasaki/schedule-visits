@@ -16,7 +16,7 @@ class AppointmentTest extends TestCase
             customerEmail: 'gabriel@example.com',
             customerPhone: '11999999999',
             appointmentDate: '2026-09-02',
-            appointmentTime: '14:00'
+            appointmentTime: '14:00',
         );
 
         $this->assertEquals(10, $appointment->getId());

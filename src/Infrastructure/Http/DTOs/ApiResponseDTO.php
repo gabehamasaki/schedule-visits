@@ -9,7 +9,7 @@ class ApiResponseDTO implements JsonSerializable
     public function __construct(
         public readonly string $status,
         public readonly mixed $data = null,
-        public readonly ?string $message = null
+        public readonly ?string $message = null,
     ) {}
 
     /**

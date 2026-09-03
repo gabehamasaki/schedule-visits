@@ -11,6 +11,6 @@ class AppointmentResponseDTO
         public readonly string $customerEmail,
         public readonly string $customerPhone,
         public readonly string $appointmentDate,
-        public readonly string $appointmentTime
+        public readonly string $appointmentTime,
     ) {}
 }

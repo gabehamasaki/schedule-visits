@@ -11,7 +11,7 @@ class Vehicle
         private string $version,
         private float $price,
         private string $location,
-        private string $imageUrl
+        private string $imageUrl,
     ) {}
 
     public function getId(): int

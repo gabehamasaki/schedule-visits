@@ -6,6 +6,6 @@ class GetAvailableHoursDTO
 {
     public function __construct(
         public readonly int $vehicleId,
-        public readonly string $date
+        public readonly string $date,
     ) {}
 }

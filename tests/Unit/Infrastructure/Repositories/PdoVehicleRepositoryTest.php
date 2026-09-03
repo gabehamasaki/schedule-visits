@@ -30,7 +30,7 @@ class PdoVehicleRepositoryTest extends TestCase
             'version' => '1.4 TFSI',
             'price' => 120000.00,
             'location' => 'SP',
-            'image_url' => 'img.jpg'
+            'image_url' => 'img.jpg',
         ]);
 
         $repository = new PdoVehicleRepository($pdoMock);

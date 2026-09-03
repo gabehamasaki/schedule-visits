@@ -23,7 +23,7 @@ class GetAllVehiclesUseCase
                 version: $vehicle->getVersion(),
                 price: $vehicle->getPrice(),
                 location: $vehicle->getLocation(),
-                imageUrl: $vehicle->getImageUrl()
+                imageUrl: $vehicle->getImageUrl(),
             );
         }, $vehicles);
     }

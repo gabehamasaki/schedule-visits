@@ -32,7 +32,7 @@ class PdoVehicleRepository implements VehicleRepositoryInterface
                 version: $data['version'],
                 price: (float) $data['price'],
                 location: $data['location'],
-                imageUrl: $data['image_url']
+                imageUrl: $data['image_url'],
             );
         }, $vehiclesData);
     }
@@ -54,7 +54,7 @@ class PdoVehicleRepository implements VehicleRepositoryInterface
             version: $data['version'],
             price: (float) $data['price'],
             location: $data['location'],
-            imageUrl: $data['image_url']
+            imageUrl: $data['image_url'],
         );
     }
 }

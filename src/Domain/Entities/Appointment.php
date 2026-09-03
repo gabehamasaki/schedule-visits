@@ -11,7 +11,7 @@ class Appointment
         private string $customerEmail,
         private string $customerPhone,
         private string $appointmentDate, // YYYY-MM-DD
-        private string $appointmentTime  // HH:MM
+        private string $appointmentTime,  // HH:MM
     ) {}
 
     public function getId(): ?int

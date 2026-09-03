@@ -33,7 +33,7 @@ class PdoAppointmentRepository implements AppointmentRepositoryInterface
             customerEmail: $appointment->getCustomerEmail(),
             customerPhone: $appointment->getCustomerPhone(),
             appointmentDate: $appointment->getAppointmentDate(),
-            appointmentTime: $appointment->getAppointmentTime()
+            appointmentTime: $appointment->getAppointmentTime(),
         );
     }
 
@@ -46,7 +46,7 @@ class PdoAppointmentRepository implements AppointmentRepositoryInterface
 
         $stmt->execute([
             'vehicleId' => $vehicleId,
-            'date'      => $date
+            'date'      => $date,
         ]);
 
         return $stmt->fetchAll(PDO::FETCH_COLUMN);

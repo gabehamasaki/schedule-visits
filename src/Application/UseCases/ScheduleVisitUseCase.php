@@ -12,13 +12,10 @@ use Exception;
 
 class ScheduleVisitUseCase
 {
-
-
-
     public function __construct(
         private AppointmentRepositoryInterface $appointmentRepository,
         private VehicleRepositoryInterface $vehicleRepository,
-        private GetAvailableHoursUseCase $getAvailableHoursUseCase
+        private GetAvailableHoursUseCase $getAvailableHoursUseCase,
     ) {}
 
     public function execute(ScheduleVisitDTO $data): AppointmentResponseDTO
@@ -33,7 +30,7 @@ class ScheduleVisitUseCase
         // 2. Get the dynamically available hours for the given vehicle and date
         $dto = new GetAvailableHoursDTO(
             vehicleId: $data->vehicleId,
-            date: $data->date
+            date: $data->date,
         );
         $availableHoursResponse = $this->getAvailableHoursUseCase->execute($dto);
 
@@ -49,7 +46,7 @@ class ScheduleVisitUseCase
             customerEmail: $data->email,
             customerPhone: $data->phone,
             appointmentDate: $data->date,
-            appointmentTime: $data->time
+            appointmentTime: $data->time,
         );
 
         $savedAppointment = $this->appointmentRepository->save($appointment);
@@ -61,7 +58,7 @@ class ScheduleVisitUseCase
             customerEmail: $savedAppointment->getCustomerEmail(),
             customerPhone: $savedAppointment->getCustomerPhone(),
             appointmentDate: $savedAppointment->getAppointmentDate(),
-            appointmentTime: $savedAppointment->getAppointmentTime()
+            appointmentTime: $savedAppointment->getAppointmentTime(),
         );
     }
 }

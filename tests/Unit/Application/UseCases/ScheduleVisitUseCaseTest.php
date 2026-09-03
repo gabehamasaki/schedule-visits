@@ -31,7 +31,7 @@ class ScheduleVisitUseCaseTest extends TestCase
         $this->useCase = new ScheduleVisitUseCase(
             $this->appointmentRepoMock,
             $this->vehicleRepoMock,
-            $this->getAvailableHoursMock
+            $this->getAvailableHoursMock,
         );
     }
 

@@ -9,7 +9,7 @@ use App\Domain\Repositories\AppointmentRepositoryInterface;
 class GetAvailableHoursUseCase
 {
     public function __construct(
-        private AppointmentRepositoryInterface $appointmentRepository
+        private AppointmentRepositoryInterface $appointmentRepository,
     ) {}
 
     public function execute(GetAvailableHoursDTO $dto): AvailableHoursResponseDTO
@@ -24,7 +24,7 @@ class GetAvailableHoursUseCase
             '15:00',
             '16:00',
             '17:00',
-            '18:00'
+            '18:00',
         ];
 
         $bookedHours = $this->appointmentRepository->getBookedHours($dto->vehicleId, $dto->date);

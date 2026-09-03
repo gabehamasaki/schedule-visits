@@ -20,7 +20,7 @@ try {
 
     $dsnDefault = "pgsql:host={$host};port={$port};dbname=postgres";
     $pdoDefault = new PDO($dsnDefault, $user, $pass, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     ]);
 
     // Check if database exists

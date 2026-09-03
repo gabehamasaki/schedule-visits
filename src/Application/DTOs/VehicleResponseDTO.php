@@ -11,6 +11,6 @@ class VehicleResponseDTO
         public readonly string $version,
         public readonly float $price,
         public readonly string $location,
-        public readonly string $imageUrl
+        public readonly string $imageUrl,
     ) {}
 }
