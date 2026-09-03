@@ -13,7 +13,8 @@ use App\Domain\Entities\Appointment;
 use App\Application\DTOs\ScheduleVisitDTO;
 use App\Application\DTOs\AvailableHoursResponseDTO;
 use App\Application\DTOs\AppointmentResponseDTO;
-use Exception;
+use App\Domain\Exceptions\ConflictException;
+use App\Domain\Exceptions\NotFoundException;
 
 class ScheduleVisitUseCaseTest extends TestCase
 {
@@ -41,8 +42,8 @@ class ScheduleVisitUseCaseTest extends TestCase
             ->method('findById')
             ->willReturn(null);
 
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage("Vehicle not found.");
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage('Vehicle not found.');
 
         $dto = new ScheduleVisitDTO(999, 'Test', 'test@test.com', '11', '2026-09-02', '10:00');
         $this->useCase->execute($dto);
@@ -58,8 +59,8 @@ class ScheduleVisitUseCaseTest extends TestCase
         $this->getAvailableHoursMock->method('execute')
             ->willReturn(new AvailableHoursResponseDTO(['11:00']));
 
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage("This time slot is not available or outside business hours.");
+        $this->expectException(ConflictException::class);
+        $this->expectExceptionMessage('This time slot is not available or outside business hours.');
 
         $dto = new ScheduleVisitDTO(1, 'Test', 'test@test.com', '11', '2026-09-02', '10:00');
         $this->useCase->execute($dto);

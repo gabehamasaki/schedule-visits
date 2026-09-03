@@ -6,9 +6,10 @@ use App\Application\DTOs\AppointmentResponseDTO;
 use App\Application\DTOs\GetAvailableHoursDTO;
 use App\Application\DTOs\ScheduleVisitDTO;
 use App\Domain\Entities\Appointment;
+use App\Domain\Exceptions\ConflictException;
+use App\Domain\Exceptions\NotFoundException;
 use App\Domain\Repositories\AppointmentRepositoryInterface;
 use App\Domain\Repositories\VehicleRepositoryInterface;
-use Exception;
 
 class ScheduleVisitUseCase
 {
@@ -23,9 +24,8 @@ class ScheduleVisitUseCase
         // 1. Check if the vehicle exists
         $vehicle = $this->vehicleRepository->findById($data->vehicleId);
         if (is_null($vehicle)) {
-            throw new Exception('Vehicle not found.');
+            throw new NotFoundException('Vehicle not found.');
         }
-
 
         // 2. Get the dynamically available hours for the given vehicle and date
         $dto = new GetAvailableHoursDTO(
@@ -34,8 +34,8 @@ class ScheduleVisitUseCase
         );
         $availableHoursResponse = $this->getAvailableHoursUseCase->execute($dto);
 
-        if (!in_array($data->time, $availableHoursResponse->availableHours)) {
-            throw new Exception("This time slot is not available or outside business hours.");
+        if (!in_array($data->time, $availableHoursResponse->availableHours, true)) {
+            throw new ConflictException('This time slot is not available or outside business hours.');
         }
 
         // 4. Create and save the appointment
