@@ -58,23 +58,6 @@ class Response implements JsonSerializable
     }
 
     /**
-     * @param string $message
-     */
-    public static function conflict(string $message = 'Resource conflict.'): self
-    {
-        return new self(409, 'error', $message);
-    }
-
-    /**
-     * @param string $message
-     * @param array<string, mixed> $errors
-     */
-    public static function badRequest(string $message = 'Bad request.', array $errors = []): self
-    {
-        return new self(400, 'error', $message, null, $errors);
-    }
-
-    /**
      * @param array<string> $allowedMethods
      */
     public static function methodNotAllowed(array $allowedMethods): self
