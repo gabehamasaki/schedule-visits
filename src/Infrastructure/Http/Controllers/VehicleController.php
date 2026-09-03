@@ -4,6 +4,8 @@ namespace App\Infrastructure\Http\Controllers;
 
 use App\Application\UseCases\GetAllVehiclesUseCase;
 use App\Application\UseCases\GetVehicleUseCase;
+use App\Domain\Exceptions\NotFoundException;
+use App\Domain\Exceptions\ValidationException;
 use App\Infrastructure\Http\Request;
 use App\Infrastructure\Http\Response;
 
@@ -24,12 +26,12 @@ class VehicleController
     {
         $vehicleId = $request->paramInt('id');
         if ($vehicleId === null) {
-            return Response::badRequest('Vehicle ID is required.');
+            throw new ValidationException(['id' => 'Vehicle ID must be a valid integer.']);
         }
 
         $vehicle = $this->getVehicleUseCase->execute($vehicleId);
         if ($vehicle === null) {
-            return Response::notFound('Vehicle not found.');
+            throw new NotFoundException('Vehicle not found.');
         }
 
         return Response::success($vehicle);
