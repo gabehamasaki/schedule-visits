@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Exceptions\DomainException;
 use App\Infrastructure\Http\Request;
 use App\Infrastructure\Http\Response;
 
@@ -60,7 +61,7 @@ try {
 
             // Check if the controller class exists
             if (!class_exists($controllerClass)) {
-                throw new Exception("Controller class $controllerClass not found.");
+                throw new RuntimeException("Controller class $controllerClass not found.");
             }
 
             // Instantiate the controller with dependencies from the container
@@ -87,9 +88,12 @@ try {
             $response->send();
             break;
     }
-} catch (Exception $e) {
-    error_log("[Index] Bootstrap or Routing error: " . $e->getMessage());
-    http_response_code(500);
+} catch (DomainException $e) {
+    error_log("[Index] Domain error: " . $e->getMessage());
 
-    echo json_encode(['error' => 'Internal Server Error', 'message' => $e->getMessage()]);
+    Response::error($e->getStatusCode(), $e->getMessage(), $e->getDetails())->send();
+} catch (Throwable $e) {
+    error_log("[Index] Bootstrap or Routing error: " . $e->getMessage());
+
+    Response::error(500, "Internal Server Error.")->send();
 }
