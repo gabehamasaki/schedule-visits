@@ -1,14 +1,13 @@
 ### Composer ###
 composer.phar
-/vendor/
+backend/vendor/
 
 # Generated files
 .phpunit.result.cache
 .phpunit.cache
 
 # PHPUnit
-/app/phpunit.xml
-/phpunit.xml
+backend/phpunit.xml
 
 # Build data
 /build/
@@ -16,5 +15,4 @@ composer.phar
 .env
 
 # PHP CS Fixer configuration
-/.php-cs-fixer.cache
-/.php-cs-fixer.php
+backend/.php-cs-fixer.cache

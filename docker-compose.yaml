@@ -1,17 +1,15 @@
-version: '3.8'
-
 services:
   api:
     build:
-      context: .
+      context: ./backend
       dockerfile: ./docker/Dockerfile
     container_name: schedule_api
     ports:
       - "8080:80"
     volumes:
-      - .:/var/www/html
+      - ./backend:/var/www/html
     env_file:
-      - .env
+      - ./backend/.env
     depends_on:
       - db
 
