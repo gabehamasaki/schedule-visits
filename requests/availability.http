@@ -1,27 +1,35 @@
 @baseUrl = http://localhost:8080/api/v1
 # @baseUrl = http://schedule-visits.test/api/v1
 
-### Available hours for a date -> 200, business hours minus booked ones
-GET {{baseUrl}}/vehicles/1/available-hours?date=2026-09-10
+### Whole upcoming schedule -> 200, one entry per day within the horizon
+GET {{baseUrl}}/vehicles/1/availability
 Accept: application/json
 
-### Date with no bookings -> 200 with all 10 business hours (09:00 to 18:00)
-GET {{baseUrl}}/vehicles/2/available-hours?date=2026-12-24
+### Single day -> 200, same shape with a single day
+GET {{baseUrl}}/vehicles/1/availability?date=2026-09-10
 Accept: application/json
 
-### Missing date -> 400
-GET {{baseUrl}}/vehicles/1/available-hours
+### Day with bookings -> 200, the booked hours are missing from availableHours
+GET {{baseUrl}}/vehicles/1/availability?date=2026-09-05
+Accept: application/json
+
+### Past date -> 200 with an empty availableHours, no query is issued
+GET {{baseUrl}}/vehicles/1/availability?date=2020-01-01
+Accept: application/json
+
+### Date beyond the generated horizon -> 200 with an empty availableHours
+GET {{baseUrl}}/vehicles/1/availability?date=2030-01-01
 Accept: application/json
 
 ### Malformed date -> 400
-GET {{baseUrl}}/vehicles/1/available-hours?date=10-09-2026
+GET {{baseUrl}}/vehicles/1/availability?date=10-09-2026
 Accept: application/json
 
 ### Date sent as an array -> 400, not a 500
 # Request::query() returns null for non-scalar values, so this must not blow up.
-GET {{baseUrl}}/vehicles/1/available-hours?date[]=2026-09-10
+GET {{baseUrl}}/vehicles/1/availability?date[]=2026-09-10
 Accept: application/json
 
 ### Unknown vehicle -> 404
-GET {{baseUrl}}/vehicles/9999/available-hours?date=2026-09-10
+GET {{baseUrl}}/vehicles/9999/availability
 Accept: application/json

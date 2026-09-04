@@ -16,7 +16,7 @@ return function (RouteCollector $router) {
             $router->post('/{id:\d+}/appointments', AppointmentController::class . '@store');
 
             // Availability route
-            $router->get('/{id:\d+}/available-hours', AvailabilityController::class . '@show');
+            $router->get('/{id:\d+}/availability', AvailabilityController::class . '@show');
         });
     });
 };
