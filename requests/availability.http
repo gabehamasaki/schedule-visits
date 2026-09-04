@@ -1,10 +1,3 @@
-# Availability endpoint — NOT IMPLEMENTED YET
-#
-# Depends on: AvailabilityController + route
-#   $router->get('/vehicles/{vehicleId:\d+}/available-hours', AvailabilityController::class . '@index');
-#
-# Until then every request here answers 404 (unknown route).
-
 @baseUrl = http://localhost:8080/api/v1
 # @baseUrl = http://schedule-visits.test/api/v1
 

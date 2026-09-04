@@ -1,19 +1,11 @@
-# Appointment endpoint — NOT IMPLEMENTED YET
-#
-# Depends on: AppointmentController + route
-#   $router->post('/appointments', AppointmentController::class . '@store');
-#
-# Until then every request here answers 404 (unknown route).
-
 @baseUrl = http://localhost:8080/api/v1
 # @baseUrl = http://schedule-visits.test/api/v1
 
 ### Schedule a visit -> 201
-POST {{baseUrl}}/appointments
+POST {{baseUrl}}/vehicles/1/appointments
 Content-Type: application/json
 
 {
-  "vehicleId": 1,
   "name": "Gabriel Hamasaki",
   "email": "gabriel.hamasaki@exata.it",
   "phone": "11987654321",
@@ -22,11 +14,10 @@ Content-Type: application/json
 }
 
 ### Same slot again -> 409
-POST {{baseUrl}}/appointments
+POST {{baseUrl}}/vehicles/1/appointments
 Content-Type: application/json
 
 {
-  "vehicleId": 1,
   "name": "Outro Cliente",
   "email": "outro@example.com",
   "phone": "11912345678",
@@ -35,11 +26,10 @@ Content-Type: application/json
 }
 
 ### Time outside business hours -> 409
-POST {{baseUrl}}/appointments
+POST {{baseUrl}}/vehicles/1/appointments
 Content-Type: application/json
 
 {
-  "vehicleId": 1,
   "name": "Gabriel Hamasaki",
   "email": "gabriel.hamasaki@exata.it",
   "phone": "11987654321",
@@ -48,11 +38,22 @@ Content-Type: application/json
 }
 
 ### Unknown vehicle -> 404
-POST {{baseUrl}}/appointments
+POST {{baseUrl}}/vehicles/9999/appointments
 Content-Type: application/json
 
 {
-  "vehicleId": 9999,
+  "name": "Gabriel Hamasaki",
+  "email": "gabriel.hamasaki@exata.it",
+  "phone": "11987654321",
+  "date": "2026-09-10",
+  "time": "11:00"
+}
+
+### Non-numeric vehicle id -> 404 (rejected by the {id:\d+} route, never reaches the controller)
+POST {{baseUrl}}/vehicles/abc/appointments
+Content-Type: application/json
+
+{
   "name": "Gabriel Hamasaki",
   "email": "gabriel.hamasaki@exata.it",
   "phone": "11987654321",
@@ -61,19 +62,16 @@ Content-Type: application/json
 }
 
 ### Missing required fields -> 400 with one message per field in "errors"
-POST {{baseUrl}}/appointments
+POST {{baseUrl}}/vehicles/1/appointments
 Content-Type: application/json
 
-{
-  "vehicleId": 1
-}
+{}
 
 ### Invalid email -> 400
-POST {{baseUrl}}/appointments
+POST {{baseUrl}}/vehicles/1/appointments
 Content-Type: application/json
 
 {
-  "vehicleId": 1,
   "name": "Gabriel Hamasaki",
   "email": "not-an-email",
   "phone": "11987654321",
@@ -82,14 +80,37 @@ Content-Type: application/json
 }
 
 ### Invalid phone -> 400
-POST {{baseUrl}}/appointments
+POST {{baseUrl}}/vehicles/1/appointments
 Content-Type: application/json
 
 {
-  "vehicleId": 1,
   "name": "Gabriel Hamasaki",
   "email": "gabriel.hamasaki@exata.it",
   "phone": "123",
   "date": "2026-09-10",
   "time": "11:00"
+}
+
+### Invalid date -> 400
+POST {{baseUrl}}/vehicles/1/appointments
+Content-Type: application/json
+
+{
+  "name": "Gabriel Hamasaki",
+  "email": "gabriel.hamasaki@exata.it",
+  "phone": "11987654321",
+  "date": "10-09-2026",
+  "time": "11:00"
+}
+
+### Invalid time -> 400
+POST {{baseUrl}}/vehicles/1/appointments
+Content-Type: application/json
+
+{
+  "name": "Gabriel Hamasaki",
+  "email": "gabriel.hamasaki@exata.it",
+  "phone": "11987654321",
+  "date": "2026-09-10",
+  "time": "25:99"
 }
