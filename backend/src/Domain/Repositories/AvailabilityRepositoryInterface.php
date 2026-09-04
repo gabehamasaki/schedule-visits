@@ -5,16 +5,16 @@ namespace App\Domain\Repositories;
 interface AvailabilityRepositoryInterface
 {
     /**
-     * Slots that are offered and still free, grouped by date.
+     * Every slot the schedule offers from the given date on, flagged as free or taken.
      *
-     * @return array<string, string[]> Date in YYYY-MM-DD => times in HH:MM
+     * @return array<string, array<string, bool>> Date in YYYY-MM-DD => time in HH:MM => is free
      */
-    public function findAvailableSlots(int $vehicleId, string $fromDate): array;
+    public function findSlots(int $vehicleId, string $fromDate): array;
 
     /**
-     * @return string[] Times in HH:MM
+     * @return array<string, bool> Time in HH:MM => is free
      */
-    public function findAvailableSlotsForDate(int $vehicleId, string $date): array;
+    public function findSlotsForDate(int $vehicleId, string $date): array;
 
     /**
      * Whether the schedule offers this slot at all, regardless of it being booked.

@@ -9,35 +9,34 @@ use PDOStatement;
 
 class PdoAvailabilityRepositoryTest extends TestCase
 {
-    public function testFindAvailableSlotsGroupsTimesByDate(): void
+    public function testFindSlotsGroupsTimesByDateAndFlagsTakenOnes(): void
     {
         $pdoMock = $this->createMock(PDO::class);
         $stmtMock = $this->createMock(PDOStatement::class);
 
         $pdoMock->expects($this->once())->method('prepare')->willReturn($stmtMock);
 
-        // Postgres returns TIME as HH:MM:SS, the API exposes HH:MM
+        // Postgres returns TIME as HH:MM:SS and the flag as an integer
         $stmtMock->expects($this->once())
             ->method('fetchAll')
             ->willReturn([
-                ['slot_date' => '2026-09-05', 'slot_time' => '09:00:00'],
-                ['slot_date' => '2026-09-05', 'slot_time' => '10:00:00'],
-                ['slot_date' => '2026-09-06', 'slot_time' => '09:00:00'],
+                ['slot_date' => '2026-09-05', 'slot_time' => '09:00:00', 'is_free' => 0],
+                ['slot_date' => '2026-09-05', 'slot_time' => '10:00:00', 'is_free' => 1],
+                ['slot_date' => '2026-09-06', 'slot_time' => '09:00:00', 'is_free' => 1],
             ]);
 
         $repository = new PdoAvailabilityRepository($pdoMock);
-        $slots = $repository->findAvailableSlots(1, '2026-09-05');
 
         $this->assertEquals(
             [
-                '2026-09-05' => ['09:00', '10:00'],
-                '2026-09-06' => ['09:00'],
+                '2026-09-05' => ['09:00' => false, '10:00' => true],
+                '2026-09-06' => ['09:00' => true],
             ],
-            $slots,
+            $repository->findSlots(1, '2026-09-05')
         );
     }
 
-    public function testFindAvailableSlotsForDateReturnsTimesWithoutSeconds(): void
+    public function testFindSlotsForDateReturnsTimesWithoutSeconds(): void
     {
         $pdoMock = $this->createMock(PDO::class);
         $stmtMock = $this->createMock(PDOStatement::class);
@@ -46,11 +45,14 @@ class PdoAvailabilityRepositoryTest extends TestCase
 
         $stmtMock->expects($this->once())
             ->method('fetchAll')
-            ->willReturn(['09:00:00', '11:00:00']);
+            ->willReturn([
+                ['slot_date' => '2026-09-05', 'slot_time' => '09:00:00', 'is_free' => 1],
+                ['slot_date' => '2026-09-05', 'slot_time' => '11:00:00', 'is_free' => 0],
+            ]);
 
         $repository = new PdoAvailabilityRepository($pdoMock);
 
-        $this->assertEquals(['09:00', '11:00'], $repository->findAvailableSlotsForDate(1, '2026-09-05'));
+        $this->assertEquals(['09:00' => true, '11:00' => false], $repository->findSlotsForDate(1, '2026-09-05'));
     }
 
     public function testSlotExistsReflectsWhatTheScheduleOffers(): void

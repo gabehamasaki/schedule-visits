@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:8080/api/v1
 # @baseUrl = http://schedule-visits.test/api/v1
 
-### Whole upcoming schedule -> 200, one entry per day within the horizon
+### Whole upcoming schedule -> 200, one entry per day, each with the full slot grid
 GET {{baseUrl}}/vehicles/1/availability
 Accept: application/json
 
@@ -9,15 +9,15 @@ Accept: application/json
 GET {{baseUrl}}/vehicles/1/availability?date=2026-09-10
 Accept: application/json
 
-### Day with bookings -> 200, the booked hours are missing from availableHours
+### Day with bookings -> 200, the booked hours come back with "available": false
 GET {{baseUrl}}/vehicles/1/availability?date=2026-09-05
 Accept: application/json
 
-### Past date -> 200 with an empty availableHours, no query is issued
+### Past date -> 200 with an empty slot list, no query is issued
 GET {{baseUrl}}/vehicles/1/availability?date=2020-01-01
 Accept: application/json
 
-### Date beyond the generated horizon -> 200 with an empty availableHours
+### Date beyond the generated horizon -> 200 with an empty slot list
 GET {{baseUrl}}/vehicles/1/availability?date=2030-01-01
 Accept: application/json
 

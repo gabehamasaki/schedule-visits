@@ -7,67 +7,49 @@ use PDO;
 
 class PdoAvailabilityRepository implements AvailabilityRepositoryInterface
 {
+
+    private const SLOTS_QUERY = "
+        SELECT s.slot_date, s.slot_time, CASE WHEN a.id IS NULL THEN 1 ELSE 0 END AS is_free
+        FROM vehicle_availability_slots s
+        LEFT JOIN appointments a
+               ON a.vehicle_id = s.vehicle_id
+              AND a.appointment_date = s.slot_date
+              AND a.appointment_time = s.slot_time
+        WHERE s.vehicle_id = :vehicleId
+          AND s.slot_date %s :date
+        ORDER BY s.slot_date, s.slot_time
+    ";
+
     public function __construct(private PDO $connection) {}
 
     /**
-     * @return array<string, string[]>
+     * @return array<string, array<string, bool>>
      */
-    public function findAvailableSlots(int $vehicleId, string $fromDate): array
+    public function findSlots(int $vehicleId, string $fromDate): array
     {
-        $stmt = $this->connection->prepare("
-            SELECT s.slot_date, s.slot_time
-            FROM vehicle_availability_slots s
-            LEFT JOIN appointments a
-                   ON a.vehicle_id = s.vehicle_id
-                  AND a.appointment_date = s.slot_date
-                  AND a.appointment_time = s.slot_time
-            WHERE s.vehicle_id = :vehicleId
-              AND s.slot_date >= :fromDate
-              AND a.id IS NULL
-            ORDER BY s.slot_date, s.slot_time
-        ");
-
-        $stmt->execute([
-            'vehicleId' => $vehicleId,
-            'fromDate'  => $fromDate,
-        ]);
+        $rows = $this->fetchSlots($vehicleId, $fromDate, '>=');
 
         $slots = [];
 
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $slots[$row['slot_date']][] = substr((string) $row['slot_time'], 0, 5);
+        foreach ($rows as $row) {
+            $slots[(string) $row['slot_date']][$this->toHourAndMinute($row['slot_time'])] = (bool) (int) $row['is_free'];
         }
 
         return $slots;
     }
 
     /**
-     * @return string[]
+     * @return array<string, bool>
      */
-    public function findAvailableSlotsForDate(int $vehicleId, string $date): array
+    public function findSlotsForDate(int $vehicleId, string $date): array
     {
-        $stmt = $this->connection->prepare("
-            SELECT s.slot_time
-            FROM vehicle_availability_slots s
-            LEFT JOIN appointments a
-                   ON a.vehicle_id = s.vehicle_id
-                  AND a.appointment_date = s.slot_date
-                  AND a.appointment_time = s.slot_time
-            WHERE s.vehicle_id = :vehicleId
-              AND s.slot_date = :date
-              AND a.id IS NULL
-            ORDER BY s.slot_time
-        ");
+        $slots = [];
 
-        $stmt->execute([
-            'vehicleId' => $vehicleId,
-            'date'      => $date,
-        ]);
+        foreach ($this->fetchSlots($vehicleId, $date, '=') as $row) {
+            $slots[$this->toHourAndMinute($row['slot_time'])] = (bool) (int) $row['is_free'];
+        }
 
-        return array_map(
-            fn(string $time): string => substr($time, 0, 5),
-            $stmt->fetchAll(PDO::FETCH_COLUMN),
-        );
+        return $slots;
     }
 
     public function slotExists(int $vehicleId, string $date, string $time): bool
@@ -84,5 +66,25 @@ class PdoAvailabilityRepository implements AvailabilityRepositoryInterface
         ]);
 
         return $stmt->fetch() !== false;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function fetchSlots(int $vehicleId, string $date, string $comparison): array
+    {
+        $stmt = $this->connection->prepare(sprintf(self::SLOTS_QUERY, $comparison));
+
+        $stmt->execute([
+            'vehicleId' => $vehicleId,
+            'date'      => $date,
+        ]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    private function toHourAndMinute(mixed $time): string
+    {
+        return substr((string) $time, 0, 5);
     }
 }

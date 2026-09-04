@@ -5,11 +5,11 @@ namespace App\Application\DTOs;
 class DayAvailabilityDTO implements \JsonSerializable
 {
     /**
-     * @param string[] $availableHours
+     * @param SlotDTO[] $slots Every slot the schedule offers for this date
      */
     public function __construct(
         public readonly string $date,
-        public readonly array $availableHours,
+        public readonly array $slots,
     ) {}
 
     /**
@@ -19,7 +19,7 @@ class DayAvailabilityDTO implements \JsonSerializable
     {
         return [
             'date' => $this->date,
-            'availableHours' => $this->availableHours,
+            'slots' => $this->slots,
         ];
     }
 }

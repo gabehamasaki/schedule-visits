@@ -5,8 +5,10 @@ namespace App\Application\UseCases;
 use App\Application\DTOs\AvailabilityResponseDTO;
 use App\Application\DTOs\DayAvailabilityDTO;
 use App\Application\DTOs\GetAvailabilityDTO;
+use App\Application\DTOs\SlotDTO;
 use App\Domain\Clock\ClockInterface;
 use App\Domain\Repositories\AvailabilityRepositoryInterface;
+use DateTimeImmutable;
 
 class GetAvailabilityUseCase
 {
@@ -21,15 +23,15 @@ class GetAvailabilityUseCase
         $today = $now->format('Y-m-d');
 
         $slotsByDate = $dto->date === null
-            ? $this->availabilityRepository->findAvailableSlots($dto->vehicleId, $today)
+            ? $this->availabilityRepository->findSlots($dto->vehicleId, $today)
             : $this->slotsForSingleDate($dto->vehicleId, $dto->date, $today);
 
         $days = [];
 
-        foreach ($slotsByDate as $date => $hours) {
+        foreach ($slotsByDate as $date => $slots) {
             $days[] = new DayAvailabilityDTO(
-                date: $date,
-                availableHours: $date === $today ? $this->stillAhead($hours, $now) : $hours,
+                date: (string) $date,
+                slots: $this->toSlotDTOs((string) $date, $slots, $now),
             );
         }
 
@@ -37,10 +39,8 @@ class GetAvailabilityUseCase
     }
 
     /**
-     * A single date always answers with one day, even when nothing is left,
-     * so the client can tell "fully booked" apart from "unknown date".
      *
-     * @return array<string, string[]>
+     * @return array<string, array<string, bool>>
      */
     private function slotsForSingleDate(int $vehicleId, string $date, string $today): array
     {
@@ -48,20 +48,28 @@ class GetAvailabilityUseCase
             return [$date => []];
         }
 
-        return [$date => $this->availabilityRepository->findAvailableSlotsForDate($vehicleId, $date)];
+        return [$date => $this->availabilityRepository->findSlotsForDate($vehicleId, $date)];
     }
 
     /**
-     * @param string[] $hours
-     * @return string[]
+     *
+     * @param array<string, bool> $slots
+     * @return SlotDTO[]
      */
-    private function stillAhead(array $hours, \DateTimeImmutable $now): array
+    private function toSlotDTOs(string $date, array $slots, DateTimeImmutable $now): array
     {
+        $isToday = $date === $now->format('Y-m-d');
         $currentTime = $now->format('H:i');
 
-        return array_values(array_filter(
-            $hours,
-            fn(string $hour): bool => $hour > $currentTime,
-        ));
+        $slotDTOs = [];
+
+        foreach ($slots as $time => $isFree) {
+            // A slot that already started today cannot be booked either
+            $available = $isFree && (!$isToday || $time > $currentTime);
+
+            $slotDTOs[] = new SlotDTO((string) $time, $available);
+        }
+
+        return $slotDTOs;
     }
 }

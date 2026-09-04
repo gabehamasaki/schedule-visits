@@ -99,7 +99,7 @@ class ScheduleVisitUseCaseTest extends TestCase
 
         // The slot is offered, but someone else already took it
         $this->availabilityRepoMock->method('slotExists')->willReturn(true);
-        $this->availabilityRepoMock->method('findAvailableSlotsForDate')->willReturn(['11:00']);
+        $this->availabilityRepoMock->method('findSlotsForDate')->willReturn(['10:00' => false, '11:00' => true]);
 
         $this->appointmentRepoMock->expects($this->never())->method('save');
 
@@ -115,7 +115,7 @@ class ScheduleVisitUseCaseTest extends TestCase
         $this->getVehicleUseCaseMock->method('execute')->willReturn($this->vehicle());
 
         $this->availabilityRepoMock->method('slotExists')->willReturn(true);
-        $this->availabilityRepoMock->method('findAvailableSlotsForDate')->willReturn(['10:00', '11:00']);
+        $this->availabilityRepoMock->method('findSlotsForDate')->willReturn(['10:00' => true, '11:00' => true]);
 
         $expectedAppointment = new Appointment(15, 1, 'Test', 'test@test.com', '11', '2026-09-02', '10:00');
 

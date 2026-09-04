@@ -47,10 +47,10 @@ class ScheduleVisitUseCase
             throw new ValidationException(['time' => 'The requested time is not offered for this date.']);
         }
 
-        // 4. The slot is offered, so its absence here means someone else took it
-        $availableHours = $this->availabilityRepository->findAvailableSlotsForDate($vehicle->id, $data->date);
+        // 4. The slot is offered, so a taken one means someone else got there first
+        $slots = $this->availabilityRepository->findSlotsForDate($vehicle->id, $data->date);
 
-        if (!in_array($data->time, $availableHours, true)) {
+        if (($slots[$data->time] ?? false) !== true) {
             throw new ConflictException('This time slot is already booked.');
         }
 
