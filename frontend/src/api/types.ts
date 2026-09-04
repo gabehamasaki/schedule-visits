@@ -15,9 +15,15 @@ export type Vehicle = {
   imageUrl: string
 }
 
+export type Slot = {
+  time: string
+  available: boolean
+}
+
 export type DayAvailability = {
   date: string
-  availableHours: string[]
+  /** Every slot the schedule offers for the date, taken ones included. */
+  slots: Slot[]
 }
 
 export type Availability = {
