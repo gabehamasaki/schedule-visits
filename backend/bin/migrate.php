@@ -18,7 +18,7 @@ try {
     $port = $_ENV['DB_PORT'] ?? '5432';
     $user = $_ENV['DB_USERNAME'] ?? 'postgres';
     $pass = $_ENV['DB_PASSWORD'] ?? 'secret';
-    $targetDb = $_ENV['DB_DATABASE'] ?? 'loop_challenge';
+    $targetDb = $_ENV['DB_DATABASE'] ?? 'schedule_visits';
 
     $dsnDefault = "pgsql:host={$host};port={$port};dbname=postgres";
     $pdoDefault = new PDO($dsnDefault, $user, $pass, [
