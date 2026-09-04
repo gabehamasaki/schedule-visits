@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   digitsOnly,
+  formatPhone,
   formatDayNumber,
   formatLongDateTime,
   formatMonthLabel,
@@ -57,5 +58,39 @@ describe('digitsOnly', () => {
   it('strips everything the API does not accept in a phone', () => {
     expect(digitsOnly('11 98878 8756')).toBe('11988788756')
     expect(digitsOnly('(11) 3456-7890')).toBe('1134567890')
+  })
+})
+
+describe('formatPhone', () => {
+  it('masks a mobile number with nine digits', () => {
+    expect(formatPhone('11988788756')).toBe('(11) 98878-8756')
+  })
+
+  it('masks a landline with eight digits', () => {
+    expect(formatPhone('1134567890')).toBe('(11) 3456-7890')
+  })
+
+  it('masks while the number is still being typed', () => {
+    expect(formatPhone('')).toBe('')
+    expect(formatPhone('1')).toBe('(1')
+    expect(formatPhone('11')).toBe('(11')
+    expect(formatPhone('119')).toBe('(11) 9')
+    expect(formatPhone('1198878')).toBe('(11) 98878')
+    expect(formatPhone('11988788')).toBe('(11) 98878-8')
+  })
+
+  it('keeps the dash in place while a mobile number is typed', () => {
+    // Deciding the split by length alone would move the dash on the ninth digit
+    expect(formatPhone('11345')).toBe('(11) 345')
+    expect(formatPhone('113456')).toBe('(11) 3456')
+    expect(formatPhone('1134567')).toBe('(11) 3456-7')
+    expect(formatPhone('119887')).toBe('(11) 9887')
+    expect(formatPhone('1198878')).toBe('(11) 98878')
+  })
+
+  it('ignores anything that is not a digit and stops at eleven', () => {
+    expect(formatPhone('(11) 98878-8756')).toBe('(11) 98878-8756')
+    expect(formatPhone('11a98878b8756')).toBe('(11) 98878-8756')
+    expect(formatPhone('119887887561234')).toBe('(11) 98878-8756')
   })
 })

@@ -61,3 +61,32 @@ export function formatLongDateTime(date: string, time: string): string {
 export function digitsOnly(value: string): string {
   return value.replace(/\D/g, '')
 }
+
+/**
+ * Progressive BR phone mask: (11) 3456-7890 with ten digits,
+ * (11) 98878-8756 with eleven. Anything else is discarded.
+ */
+export function formatPhone(value: string): string {
+  const digits = digitsOnly(value).slice(0, 11)
+
+  if (digits.length === 0) {
+    return ''
+  }
+
+  if (digits.length <= 2) {
+    return `(${digits}`
+  }
+
+  const areaCode = digits.slice(0, 2)
+  const number = digits.slice(2)
+
+  // Mobile numbers start with 9 and carry an extra digit before the dash.
+  // Deciding by the leading digit keeps the dash still while typing.
+  const splitAt = number.startsWith('9') || number.length > 8 ? 5 : 4
+
+  if (number.length <= splitAt) {
+    return `(${areaCode}) ${number}`
+  }
+
+  return `(${areaCode}) ${number.slice(0, splitAt)}-${number.slice(splitAt)}`
+}

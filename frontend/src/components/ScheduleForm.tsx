@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import type { ScheduleVisitPayload } from '../api/types'
-import { digitsOnly } from '../utils/format'
+import { digitsOnly, formatPhone } from '../utils/format'
 
 type ScheduleFormProps = {
   slotLabel: string
@@ -112,11 +112,13 @@ export default function ScheduleForm({
             <TextField
               label="Telefone"
               value={phone}
-              onChange={(event) => setPhone(event.target.value)}
+              onChange={(event) => setPhone(formatPhone(event.target.value))}
               error={Boolean(errorFor('phone'))}
               helperText={errorFor('phone')}
               autoComplete="tel"
               inputMode="tel"
+              placeholder="(11) 98878-8756"
+              slotProps={{ htmlInput: { maxLength: 15 } }}
               fullWidth
             />
           </Grid>

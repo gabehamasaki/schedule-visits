@@ -49,6 +49,16 @@ describe('ScheduleForm', () => {
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
+  it('masks the phone as it is typed', async () => {
+    renderForm()
+
+    const phone = screen.getByLabelText('Telefone')
+
+    await userEvent.type(phone, '11988788756')
+
+    expect(phone).toHaveValue('(11) 98878-8756')
+  })
+
   it('sends the phone as digits only, however it was typed', async () => {
     const { onSubmit } = renderForm()
 
