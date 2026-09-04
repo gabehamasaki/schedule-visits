@@ -42,7 +42,7 @@ class ScheduleVisitDTO implements \JsonSerializable
         return $this;
     }
 
-    private static function isValidDate(mixed $value): bool
+    public static function isValidDate(mixed $value): bool
     {
         if (!is_string($value)) return false;
         $d = \DateTime::createFromFormat('Y-m-d', $value);
