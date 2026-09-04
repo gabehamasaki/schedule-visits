@@ -5,6 +5,7 @@ namespace App\Application\DTOs;
 class AvailabilityResponseDTO implements \JsonSerializable
 {
     /**
+     * @param int $vehicleId
      * @param DayAvailabilityDTO[] $days
      */
     public function __construct(
