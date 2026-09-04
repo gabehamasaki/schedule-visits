@@ -8,6 +8,8 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
+$shouldDrop = in_array('--drop', $argv, true);
+
 try {
     echo "[Migrator] Checking database existence...\n";
 
@@ -42,6 +44,13 @@ try {
     // 2. Connect to the actual target database using our Singleton
     echo "[Migrator] Connecting to '{$targetDb}'...\n";
     $pdo = PdoConnection::getInstance();
+
+    // 2.5. --drop: wipe every table so migrations/seeders start from scratch
+    if ($shouldDrop) {
+        echo "[Migrator] --drop passed. Dropping all tables...\n";
+        $pdo->exec("DROP TABLE IF EXISTS appointments, vehicles CASCADE;");
+        echo "[Migrator] Tables dropped.\n";
+    }
 
     // 3. Run Migrations
     echo "[Migrator] Running migrations...\n";
