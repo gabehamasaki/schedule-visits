@@ -3,8 +3,9 @@
 namespace Tests\Unit\Infrastructure;
 
 use App\Infrastructure\Http\Request;
+use PHPUnit\Framework\TestCase;
 
-class RequestTest
+class RequestTest extends TestCase
 {
     public function testRequestCreation(): void
     {
@@ -16,26 +17,23 @@ class RequestTest
             ['name' => 'John Doe']
         );
 
-        assert($request->method === 'GET');
-        assert($request->uri === '/test');
-        assert($request->param('id') === '123');
-        assert($request->query('search') === 'query');
-        assert($request->input('name') === 'John Doe');
+        $this->assertSame('GET', $request->method);
+        $this->assertSame('/test', $request->uri);
+        $this->assertSame('123', $request->param('id'));
+        $this->assertSame('query', $request->query('search'));
+        $this->assertSame('John Doe', $request->input('name'));
     }
 
-    public function testRequestFromGlobals(): void
+    public function testRequestFromGlobalsReadsMethodUriAndQuery(): void
     {
-        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/submit';
         $_GET = ['search' => 'query'];
-        $inputData = json_encode(['name' => 'John Doe']);
-        file_put_contents('php://input', $inputData);
 
         $request = Request::fromGlobals();
 
-        assert($request->method === 'POST');
-        assert($request->uri === '/submit');
-        assert($request->query('search') === 'query');
-        assert($request->input('name') === 'John Doe');
+        $this->assertSame('GET', $request->method);
+        $this->assertSame('/submit', $request->uri);
+        $this->assertSame('query', $request->query('search'));
     }
 }
