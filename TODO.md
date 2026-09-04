@@ -8,11 +8,12 @@
 - [x] Use cases principais (listar veículos, horários disponíveis, agendar visita)
 - [x] DTOs de entrada/saída
 - [x] Injeção de dependência (PHP-DI)
-- [ ] Controllers (Vehicle, Availability, Appointment)
-- [ ] Registrar rotas em `routes/web.php`
-- [ ] Validação de input (email, telefone, campos obrigatórios)
-- [ ] Padronizar resposta de sucesso/erro
-- [ ] Status HTTP corretos por tipo de erro (400/404/409)
+- [x] Controllers Vehicle e Appointment
+- [ ] Controller/rota de disponibilidade (`GetAvailableHoursUseCase` existe mas não está exposto via HTTP)
+- [x] Registrar rotas em `routes/web.php` (vehicles e appointments; falta a de disponibilidade acima)
+- [x] Validação de input (email, telefone, campos obrigatórios) — `ScheduleVisitDTO::validate()`
+- [x] Padronizar resposta de sucesso/erro — `Response::success/created/error`
+- [x] Status HTTP corretos por tipo de erro (400/404/409) — via hierarquia de `DomainException`
 
 ## Frontend
 
@@ -48,8 +49,8 @@
 ## Melhorias
 
 - [ ] Evitar agendamento duplicado no mesmo horário (constraint no banco)
-- [ ] Exceptions próprias em vez de Exception genérica
-- [ ] Validar email/telefone de forma mais robusta
+- [x] Exceptions próprias em vez de Exception genérica — `DomainException` e subclasses em todo o `src/`
+- [x] Validar email/telefone de forma mais robusta — `filter_var(FILTER_VALIDATE_EMAIL)` + regex de dígitos no `ScheduleVisitDTO`
 
 ## Por último
 
