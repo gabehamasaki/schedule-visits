@@ -47,3 +47,17 @@ export function formatSlotLabel(date: string, time: string): string {
 
   return `${weekday}, ${dayAndMonth}, ${time} horas`
 }
+
+/** ("2026-09-22", "14:00") => "Segunda-feira, 22 setembro 2026 às 14:00" */
+export function formatLongDateTime(date: string, time: string): string {
+  const parsed = parseDate(date)
+  const weekday = capitalize(parsed.toLocaleDateString('pt-BR', { weekday: 'long' }))
+  const month = parsed.toLocaleDateString('pt-BR', { month: 'long' })
+
+  return `${weekday}, ${parsed.getDate()} ${month} ${parsed.getFullYear()} às ${time}`
+}
+
+/** Keeps only digits, which is what the API accepts for the phone. */
+export function digitsOnly(value: string): string {
+  return value.replace(/\D/g, '')
+}
