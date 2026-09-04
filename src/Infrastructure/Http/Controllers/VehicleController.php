@@ -4,7 +4,6 @@ namespace App\Infrastructure\Http\Controllers;
 
 use App\Application\UseCases\GetAllVehiclesUseCase;
 use App\Application\UseCases\GetVehicleUseCase;
-use App\Domain\Exceptions\NotFoundException;
 use App\Domain\Exceptions\ValidationException;
 use App\Infrastructure\Http\Request;
 use App\Infrastructure\Http\Response;
@@ -30,9 +29,6 @@ class VehicleController
         }
 
         $vehicle = $this->getVehicleUseCase->execute($vehicleId);
-        if ($vehicle === null) {
-            throw new NotFoundException('Vehicle not found.');
-        }
 
         return Response::success($vehicle);
     }

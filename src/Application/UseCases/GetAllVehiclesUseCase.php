@@ -15,6 +15,7 @@ class GetAllVehiclesUseCase
     public function execute(): array
     {
         $vehicles = $this->vehicleRepository->findAll();
+
         return array_map(function ($vehicle) {
             return new VehicleResponseDTO(
                 id: $vehicle->getId(),
