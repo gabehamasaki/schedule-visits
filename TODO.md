@@ -27,7 +27,7 @@
 
 - [x] Migrations (vehicles, appointments)
 - [x] Seed inicial
-- [ ] Trocar as imagens do seed (as atuais são só placeholder e não carregam)
+- [x] Trocar as imagens do seed (fotos reais de cada modelo via Wikimedia Commons, licença CC BY-SA/domínio público) e aumentar a quantidade de veículos (2 -> 8)
 
 ## Testes e qualidade
 
@@ -47,7 +47,7 @@
 
 ## Melhorias
 
-- [ ] Evitar agendamento duplicado no mesmo horário (constraint no banco)
+- [x] Evitar agendamento duplicado no mesmo horário — unique index em `(vehicle_id, appointment_date, appointment_time)` + `PdoAppointmentRepository` traduzindo a violação em `ConflictException`
 - [x] Exceptions próprias em vez de Exception genérica — `DomainException` e subclasses em todo o `src/`
 - [x] Validar email/telefone de forma mais robusta — `filter_var(FILTER_VALIDATE_EMAIL)` + regex de dígitos no `ScheduleVisitDTO`
 
