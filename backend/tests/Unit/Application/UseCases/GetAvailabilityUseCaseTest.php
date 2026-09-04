@@ -49,11 +49,11 @@ class GetAvailabilityUseCaseTest extends TestCase
         $this->assertEquals([new SlotDTO('09:00', false)], $response->days[1]->slots);
     }
 
-    public function testItMarksHoursAlreadyPassedTodayAsUnavailable(): void
+    public function testItLeavesOutHoursAlreadyPassedToday(): void
     {
         $this->availabilityRepoMock->method('findSlots')
             ->willReturn([
-                '2026-09-01' => ['09:00' => true, '13:00' => true, '14:00' => true],
+                '2026-09-01' => ['09:00' => true, '13:00' => true, '14:00' => true, '15:00' => false],
                 '2026-09-02' => ['09:00' => true],
             ]);
 
@@ -61,13 +61,28 @@ class GetAvailabilityUseCaseTest extends TestCase
 
         $response = $useCase->execute(new GetAvailabilityDTO(vehicleId: 1));
 
+        // 09:00 and 13:00 are gone, while 15:00 stays as a booked slot
         $this->assertEquals(
-            [new SlotDTO('09:00', false), new SlotDTO('13:00', false), new SlotDTO('14:00', true)],
+            [new SlotDTO('14:00', true), new SlotDTO('15:00', false)],
             $response->days[0]->slots
         );
 
-        // Later days keep every hour available, no matter the current time
+        // Later days keep every hour, no matter the current time
         $this->assertEquals([new SlotDTO('09:00', true)], $response->days[1]->slots);
+    }
+
+    public function testItReturnsNoSlotsWhenTodayIsOver(): void
+    {
+        $this->availabilityRepoMock->method('findSlots')
+            ->willReturn(['2026-09-01' => ['09:00' => true, '18:00' => true]]);
+
+        $useCase = new GetAvailabilityUseCase($this->availabilityRepoMock, new FrozenClock('2026-09-01 19:00'));
+
+        $response = $useCase->execute(new GetAvailabilityDTO(vehicleId: 1));
+
+        // The day is kept so the client can show it disabled instead of missing
+        $this->assertCount(1, $response->days);
+        $this->assertEquals([], $response->days[0]->slots);
     }
 
     public function testItReturnsASingleDayWhenADateIsGiven(): void

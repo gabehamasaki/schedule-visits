@@ -64,10 +64,12 @@ class GetAvailabilityUseCase
         $slotDTOs = [];
 
         foreach ($slots as $time => $isFree) {
-            // A slot that already started today cannot be booked either
-            $available = $isFree && (!$isToday || $time > $currentTime);
+            // A slot that already started carries no information: leave it out
+            if ($isToday && (string) $time <= $currentTime) {
+                continue;
+            }
 
-            $slotDTOs[] = new SlotDTO((string) $time, $available);
+            $slotDTOs[] = new SlotDTO((string) $time, $isFree);
         }
 
         return $slotDTOs;

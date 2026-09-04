@@ -23,8 +23,9 @@
 - [x] Tela com detalhes do veículo — `VehicleCard` reusado na listagem e no agendamento
 - [x] Seleção de dia e horário disponível — chips paginados, reservados e vencidos desabilitados
 - [x] Loading/erro na busca de horários — skeletons, `ErrorState` e botão de tentar novamente
-- [ ] Formulário com dados do cliente
-- [ ] Tela de confirmação do agendamento
+- [x] Formulário com dados do cliente — validação local espelhando o DTO e erros por campo vindos da API
+- [x] Tela de confirmação do agendamento — dados vindos da resposta do POST
+- [ ] Code splitting das páginas (bundle único passou de 500 kB)
 
 ## Banco de dados
 
@@ -64,7 +65,7 @@
 - [x] Bloquear agendamento em data passada — `ClockInterface` injetado, validado no `ScheduleVisitUseCase`
 - [x] Timezone explícito na comparação de data/hora — `APP_TIMEZONE` no `SystemClock` e no `date_default_timezone_set`
 - [x] Seeder de veículos idempotente — unique index em `(brand, model, version)` + `ON CONFLICT DO NOTHING`
-- [x] Grade completa do dia com sinalizador `available` — horário reservado ou vencido volta desabilitado em vez de ausente
+- [x] Grade do dia com sinalizador `available` — reservado volta desabilitado, vencido não volta
 
 ## Por último
 
