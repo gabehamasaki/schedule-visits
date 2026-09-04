@@ -55,8 +55,7 @@
 - [x] Agenda persistida em `vehicle_availability_slots` — grade por dia/veículo, disponibilidade via anti-join com `appointments`
 - [x] Bloquear agendamento em data passada — `ClockInterface` injetado, horários vencidos saem da resposta
 - [x] Timezone explícito na comparação de data/hora — `APP_TIMEZONE` no `SystemClock` e no `date_default_timezone_set`
-- [ ] Fim de semana e feriados fora da grade de horários — hoje a grade é uniforme; ponto de extensão é `bin/generate-slots.php`
-- [ ] Seeder de veículos duplica registros quando `bin/migrate.php` roda sem `--drop`
+- [x] Seeder de veículos duplica registros quando `bin/migrate.php` roda sem `--drop`
 
 ## Por último
 
