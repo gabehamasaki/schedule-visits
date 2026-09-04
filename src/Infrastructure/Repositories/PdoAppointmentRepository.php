@@ -3,11 +3,15 @@
 namespace App\Infrastructure\Repositories;
 
 use App\Domain\Entities\Appointment;
+use App\Domain\Exceptions\ConflictException;
 use App\Domain\Repositories\AppointmentRepositoryInterface;
 use PDO;
+use PDOException;
 
 class PdoAppointmentRepository implements AppointmentRepositoryInterface
 {
+    private const UNIQUE_VIOLATION = '23505';
+
     public function __construct(private PDO $connection) {}
 
     public function save(Appointment $appointment): Appointment
@@ -17,14 +21,22 @@ class PdoAppointmentRepository implements AppointmentRepositoryInterface
             VALUES (:vehicleId, :name, :email, :phone, :date, :time)
         ");
 
-        $stmt->execute([
-            'vehicleId' => $appointment->getVehicleId(),
-            'name'      => $appointment->getCustomerName(),
-            'email'     => $appointment->getCustomerEmail(),
-            'phone'     => $appointment->getCustomerPhone(),
-            'date'      => $appointment->getAppointmentDate(),
-            'time'      => $appointment->getAppointmentTime(),
-        ]);
+        try {
+            $stmt->execute([
+                'vehicleId' => $appointment->getVehicleId(),
+                'name'      => $appointment->getCustomerName(),
+                'email'     => $appointment->getCustomerEmail(),
+                'phone'     => $appointment->getCustomerPhone(),
+                'date'      => $appointment->getAppointmentDate(),
+                'time'      => $appointment->getAppointmentTime(),
+            ]);
+        } catch (PDOException $e) {
+            if (($e->errorInfo[0] ?? null) === self::UNIQUE_VIOLATION) {
+                throw new ConflictException('This time slot is not available or outside business hours.');
+            }
+
+            throw $e;
+        }
 
         return new Appointment(
             id: (int) $this->connection->lastInsertId(),
