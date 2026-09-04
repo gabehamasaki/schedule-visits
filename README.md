@@ -51,6 +51,8 @@ make migrate
 
 O `migrate.php` cria o banco se não existir, aplica as migrations, roda os seeders e materializa a agenda dos próximos dias. Com `--drop` ele derruba as tabelas antes, para recomeçar do zero - é o `make fresh`.
 
+A imagem da API leva o código e o `composer install` dentro dela, então um clone novo sobe sem passo anterior nenhum. Em troca, não há bind mount: mudou o código, `make up` de novo. Para editar com reload, use o modo sem Docker abaixo.
+
 | Serviço | URL |
 |---|---|
 | Frontend | http://localhost:3000 |
@@ -60,6 +62,8 @@ O `migrate.php` cria o banco se não existir, aplica as migrations, roda os seed
 O frontend chama a API por caminho relativo (`/api/v1`) e o nginx faz o proxy para o container `api`. Uma origem só: sem CORS e sem a porta do backend embutida no bundle.
 
 ### Sem Docker
+
+Aqui o Postgres não está na rede do compose, então o `DB_HOST` do `backend/.env` precisa apontar para `localhost` em vez de `db`.
 
 ```bash
 # backend
@@ -225,7 +229,7 @@ make check     # tudo acima, é o que a CI roda
 Direto, sem o Makefile:
 
 ```bash
-cd backend  && vendor/bin/phpunit tests && vendor/bin/phpstan analyse
+cd backend  && vendor/bin/phpunit && vendor/bin/phpstan analyse
 cd frontend && npm test && npm run lint && npm run build
 ```
 
