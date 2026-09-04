@@ -8,9 +8,8 @@
 - [x] Use cases principais (listar veículos, horários disponíveis, agendar visita)
 - [x] DTOs de entrada/saída
 - [x] Injeção de dependência (PHP-DI)
-- [x] Controllers Vehicle e Appointment
-- [ ] Controller/rota de disponibilidade (`GetAvailableHoursUseCase` existe mas não está exposto via HTTP)
-- [x] Registrar rotas em `routes/web.php` (vehicles e appointments; falta a de disponibilidade acima)
+- [x] Controllers Vehicle, Appointment e Availability
+- [x] Registrar rotas em `routes/web.php` (vehicles, appointments e available-hours)
 - [x] Validação de input (email, telefone, campos obrigatórios) — `ScheduleVisitDTO::validate()`
 - [x] Padronizar resposta de sucesso/erro — `Response::success/created/error`
 - [x] Status HTTP corretos por tipo de erro (400/404/409) — via hierarquia de `DomainException`
