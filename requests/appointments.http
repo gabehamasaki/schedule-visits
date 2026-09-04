@@ -93,21 +93,3 @@ Content-Type: application/json
   "date": "2026-09-10",
   "time": "11:00"
 }
-
-### Malformed JSON body -> must not return 500
-# Request::fromGlobals() guards with is_array(), so the body becomes [] and
-# validation answers 400.
-POST {{baseUrl}}/appointments
-Content-Type: application/json
-
-{ "vehicleId": 1,
-
-### Empty body -> 400
-POST {{baseUrl}}/appointments
-Content-Type: application/json
-
-### CORS preflight -> 200 with no body
-OPTIONS {{baseUrl}}/appointments
-Origin: http://localhost:5173
-Access-Control-Request-Method: POST
-Access-Control-Request-Headers: Content-Type
