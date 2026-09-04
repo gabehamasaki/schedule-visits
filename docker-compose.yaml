@@ -6,12 +6,14 @@ services:
     container_name: schedule_api
     ports:
       - "8080:80"
-    volumes:
-      - ./backend:/var/www/html
+    # No bind mount on purpose: the image carries the source and the vendor
+    # install, so a fresh clone comes up with `docker compose up` alone.
+    # For editing the code with reload, see "Sem Docker" in the README.
     env_file:
       - ./backend/.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   web:
     build:
@@ -34,6 +36,14 @@ services:
       POSTGRES_PASSWORD: secret
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # The API connects while booting, so it has to wait for Postgres to accept
+      # connections and not merely for the container to exist
+      test: ["CMD-SHELL", "pg_isready -U postgres -d schedule_visits"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
 volumes:
   postgres_data:
