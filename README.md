@@ -42,7 +42,14 @@ docker compose up -d --build
 docker compose exec api php bin/migrate.php
 ```
 
-O `migrate.php` cria o banco se não existir, aplica as migrations, roda os seeders e materializa a agenda dos próximos dias. Com `--drop` ele derruba as tabelas antes, para recomeçar do zero.
+Ou pelo Makefile, que é o mesmo com menos digitação:
+
+```bash
+make up
+make migrate
+```
+
+O `migrate.php` cria o banco se não existir, aplica as migrations, roda os seeders e materializa a agenda dos próximos dias. Com `--drop` ele derruba as tabelas antes, para recomeçar do zero - é o `make fresh`.
 
 | Serviço | URL |
 |---|---|
@@ -204,20 +211,25 @@ Por que cada índice está lá:
 
 ## Qualidade
 
-```bash
-# backend
-cd backend
-vendor/bin/phpunit tests
-vendor/bin/phpstan analyse        # nível 8
-vendor/bin/php-cs-fixer fix
+O Makefile cobre os dois lados. `make` sem alvo lista tudo.
 
-# frontend
-cd frontend
-npm test                          # Vitest + Testing Library
-npm run test:coverage
-npm run build                     # inclui tsc -b
-npm run lint
+```bash
+make test      # PHPUnit + Vitest, a bateria completa
+make lint      # PHP-CS-Fixer em verificação + oxlint
+make stan      # PHPStan nível 8
+make build     # build do frontend, inclui tsc -b
+make fmt       # aplica o PHP-CS-Fixer
+make check     # tudo acima, é o que a CI roda
 ```
+
+Direto, sem o Makefile:
+
+```bash
+cd backend  && vendor/bin/phpunit tests && vendor/bin/phpstan analyse
+cd frontend && npm test && npm run lint && npm run build
+```
+
+A CI no GitHub Actions roda em três jobs paralelos: backend (PHPUnit, PHPStan, PHP-CS-Fixer), frontend (oxlint, Vitest, build) e um `docker compose build` para garantir que as duas imagens continuam subindo.
 
 No backend os testes são unitários, com `PDO`/`PDOStatement` mockados, focados nos use cases e no que os repositórios fazem com as linhas que recebem.
 
