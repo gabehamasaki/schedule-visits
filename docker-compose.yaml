@@ -13,6 +13,16 @@ services:
     depends_on:
       - db
 
+  web:
+    build:
+      context: ./frontend
+      dockerfile: ./docker/Dockerfile
+    container_name: schedule_web
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
   db:
     image: postgres:15-alpine
     container_name: schedule_db
@@ -24,8 +34,6 @@ services:
       POSTGRES_PASSWORD: secret
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  # TODO: We will uncomment and configure this when we create the React frontend
 
 volumes:
   postgres_data:
