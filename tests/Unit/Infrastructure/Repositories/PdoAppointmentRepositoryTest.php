@@ -77,23 +77,4 @@ class PdoAppointmentRepositoryTest extends TestCase
 
         $repository->save(new Appointment(null, 1, 'John', 'john@test.com', '123', '2026-09-02', '10:00'));
     }
-
-    public function testGetBookedHoursReturnsArrayOfTimes(): void
-    {
-        $pdoMock = $this->createMock(PDO::class);
-        $stmtMock = $this->createMock(PDOStatement::class);
-
-        $pdoMock->method('prepare')->willReturn($stmtMock);
-
-        // Simulates fetchAll returning a single column array (PDO::FETCH_COLUMN)
-        $stmtMock->expects($this->once())
-            ->method('fetchAll')
-            ->willReturn(['09:00:00', '11:00:00']);
-
-        $repository = new PdoAppointmentRepository($pdoMock);
-        $hours = $repository->getBookedHours(1, '2026-09-02');
-
-        $this->assertCount(2, $hours);
-        $this->assertEquals('09:00:00', $hours[0]);
-    }
 }

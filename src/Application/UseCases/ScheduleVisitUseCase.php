@@ -3,42 +3,54 @@
 namespace App\Application\UseCases;
 
 use App\Application\DTOs\AppointmentResponseDTO;
-use App\Application\DTOs\GetAvailableHoursDTO;
 use App\Application\DTOs\ScheduleVisitDTO;
+use App\Domain\Clock\ClockInterface;
 use App\Domain\Entities\Appointment;
 use App\Domain\Exceptions\ConflictException;
 use App\Domain\Exceptions\ValidationException;
 use App\Domain\Repositories\AppointmentRepositoryInterface;
-use App\Domain\ValueObjects\BusinessHours;
+use App\Domain\Repositories\AvailabilityRepositoryInterface;
+use DateTimeImmutable;
 
 class ScheduleVisitUseCase
 {
     public function __construct(
         private AppointmentRepositoryInterface $appointmentRepository,
+        private AvailabilityRepositoryInterface $availabilityRepository,
         private GetVehicleUseCase $getVehicleUseCase,
-        private GetAvailableHoursUseCase $getAvailableHoursUseCase,
-        private BusinessHours $businessHours
+        private ClockInterface $clock,
     ) {}
 
     public function execute(ScheduleVisitDTO $data): AppointmentResponseDTO
     {
-        // 1. Check if the requested time is within business hours
-        if (!$this->businessHours->contains($data->time)) {
-            throw new ValidationException(['time' => 'The requested time is outside of business hours.']);
+        // 1. Reject a slot in the past before touching the database
+        $now = $this->clock->now();
+        $requestedAt = DateTimeImmutable::createFromFormat(
+            '!Y-m-d H:i',
+            "{$data->date} {$data->time}",
+            $now->getTimezone(),
+        );
+
+        if ($requestedAt === false) {
+            throw new ValidationException(['date' => 'Date and time must be valid (YYYY-MM-DD and HH:MM).']);
+        }
+
+        if ($requestedAt < $now) {
+            throw new ValidationException(['date' => 'Cannot schedule a visit in the past.']);
         }
 
         // 2. Check if the vehicle exists
         $vehicle = $this->getVehicleUseCase->execute($data->vehicleId);
 
-        // 3. Get the dynamically available hours for the given vehicle and date
-        $dto = new GetAvailableHoursDTO(
-            vehicleId: $data->vehicleId,
-            date: $data->date,
-        );
-        $availableHoursResponse = $this->getAvailableHoursUseCase->execute($dto);
+        // 3. The schedule has to offer this slot in the first place
+        if (!$this->availabilityRepository->slotExists($vehicle->id, $data->date, $data->time)) {
+            throw new ValidationException(['time' => 'The requested time is not offered for this date.']);
+        }
 
-        // 4. The time belongs to the grid, so its absence here means it is already taken
-        if (!in_array($data->time, $availableHoursResponse->availableHours, true)) {
+        // 4. The slot is offered, so its absence here means someone else took it
+        $availableHours = $this->availabilityRepository->findAvailableSlotsForDate($vehicle->id, $data->date);
+
+        if (!in_array($data->time, $availableHours, true)) {
             throw new ConflictException('This time slot is already booked.');
         }
 

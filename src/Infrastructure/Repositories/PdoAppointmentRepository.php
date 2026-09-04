@@ -32,7 +32,7 @@ class PdoAppointmentRepository implements AppointmentRepositoryInterface
             ]);
         } catch (PDOException $e) {
             if (($e->errorInfo[0] ?? null) === self::UNIQUE_VIOLATION) {
-                throw new ConflictException('This time slot is not available or outside business hours.');
+                throw new ConflictException('This time slot is already booked.');
             }
 
             throw $e;
@@ -47,20 +47,5 @@ class PdoAppointmentRepository implements AppointmentRepositoryInterface
             appointmentDate: $appointment->getAppointmentDate(),
             appointmentTime: $appointment->getAppointmentTime(),
         );
-    }
-
-    public function getBookedHours(int $vehicleId, string $date): array
-    {
-        $stmt = $this->connection->prepare("
-            SELECT appointment_time FROM appointments
-            WHERE vehicle_id = :vehicleId AND appointment_date = :date
-        ");
-
-        $stmt->execute([
-            'vehicleId' => $vehicleId,
-            'date'      => $date,
-        ]);
-
-        return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 }
