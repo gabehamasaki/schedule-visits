@@ -48,7 +48,7 @@ try {
     // 2.5. --drop: wipe every table so migrations/seeders start from scratch
     if ($shouldDrop) {
         echo "[Migrator] --drop passed. Dropping all tables...\n";
-        $pdo->exec("DROP TABLE IF EXISTS appointments, vehicles CASCADE;");
+        $pdo->exec("DROP TABLE IF EXISTS appointments, vehicle_availability_slots, vehicles CASCADE;");
         echo "[Migrator] Tables dropped.\n";
     }
 
@@ -72,6 +72,15 @@ try {
         $sql = file_get_contents($file);
         $pdo->exec($sql);
         echo " -> Seeded: " . basename($file) . "\n";
+    }
+
+    // 5. Materialize the default business hours grid into the schedule
+    echo "[Migrator] Generating availability slots...\n";
+    passthru(PHP_BINARY . ' ' . escapeshellarg(__DIR__ . '/generate-slots.php'), $slotsExitCode);
+
+    if ($slotsExitCode !== 0) {
+        echo "[Migrator] ERROR: slot generation failed.\n";
+        exit(1);
     }
 
     echo "[Migrator] Database setup completed successfully!\n";
