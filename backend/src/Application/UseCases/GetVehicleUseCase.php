@@ -26,7 +26,7 @@ class GetVehicleUseCase
             $vehicle->getVersion(),
             $vehicle->getPrice(),
             $vehicle->getLocation(),
-            $vehicle->getImageUrl()
+            $vehicle->getImageUrl(),
         );
     }
 }

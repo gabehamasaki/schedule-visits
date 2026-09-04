@@ -41,7 +41,7 @@ class GetAvailabilityUseCaseTest extends TestCase
         // A booked slot stays in the grid, flagged as unavailable
         $this->assertEquals(
             [new SlotDTO('09:00', true), new SlotDTO('10:00', false)],
-            $response->days[0]->slots
+            $response->days[0]->slots,
         );
 
         // A fully booked day is kept, so the client can show it disabled
@@ -64,7 +64,7 @@ class GetAvailabilityUseCaseTest extends TestCase
         // 09:00 and 13:00 are gone, while 15:00 stays as a booked slot
         $this->assertEquals(
             [new SlotDTO('14:00', true), new SlotDTO('15:00', false)],
-            $response->days[0]->slots
+            $response->days[0]->slots,
         );
 
         // Later days keep every hour, no matter the current time
@@ -102,7 +102,7 @@ class GetAvailabilityUseCaseTest extends TestCase
         $this->assertEquals('2026-09-10', $response->days[0]->date);
         $this->assertEquals(
             [new SlotDTO('09:00', true), new SlotDTO('11:00', false)],
-            $response->days[0]->slots
+            $response->days[0]->slots,
         );
     }
 

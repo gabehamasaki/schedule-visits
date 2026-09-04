@@ -32,7 +32,7 @@ class PdoAvailabilityRepositoryTest extends TestCase
                 '2026-09-05' => ['09:00' => false, '10:00' => true],
                 '2026-09-06' => ['09:00' => true],
             ],
-            $repository->findSlots(1, '2026-09-05')
+            $repository->findSlots(1, '2026-09-05'),
         );
     }
 

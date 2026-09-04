@@ -7,7 +7,6 @@ use PDO;
 
 class PdoAvailabilityRepository implements AvailabilityRepositoryInterface
 {
-
     private const SLOTS_QUERY = "
         SELECT s.slot_date, s.slot_time, CASE WHEN a.id IS NULL THEN 1 ELSE 0 END AS is_free
         FROM vehicle_availability_slots s

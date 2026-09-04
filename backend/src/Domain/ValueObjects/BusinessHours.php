@@ -8,7 +8,7 @@ class BusinessHours
      * @param array<string> $slots
      */
     private function __construct(
-        private readonly array $slots
+        private readonly array $slots,
     ) {}
 
     /**

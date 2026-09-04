@@ -14,7 +14,7 @@ class RequestTest extends TestCase
             '/test',
             ['id' => '123'],
             ['search' => 'query'],
-            ['name' => 'John Doe']
+            ['name' => 'John Doe'],
         );
 
         $this->assertSame('GET', $request->method);
