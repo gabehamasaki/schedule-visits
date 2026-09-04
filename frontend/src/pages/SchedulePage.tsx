@@ -3,20 +3,23 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { ApiError } from '../api/client'
+import AppointmentConfirmation from '../components/AppointmentConfirmation'
 import BackLink from '../components/BackLink'
 import DayPicker from '../components/DayPicker'
 import ErrorState from '../components/ErrorState'
 import HourPicker from '../components/HourPicker'
 import PanelCard from '../components/PanelCard'
+import ScheduleForm from '../components/ScheduleForm'
 import VehicleCard from '../components/VehicleCard'
 import { useAvailability } from '../hooks/useAvailability'
+import { useScheduleVisit } from '../hooks/useScheduleVisit'
 import { useVehicle } from '../hooks/useVehicle'
 import { formatSlotLabel } from '../utils/format'
 
-type Step = 'slot' | 'form'
+type Step = 'slot' | 'form' | 'done'
 
 export default function SchedulePage() {
   const { vehicleId: vehicleIdParam } = useParams()
@@ -25,6 +28,7 @@ export default function SchedulePage() {
 
   const vehicleQuery = useVehicle(vehicleId)
   const availabilityQuery = useAvailability(vehicleId)
+  const scheduleVisit = useScheduleVisit(vehicleId)
 
   const [step, setStep] = useState<Step>('slot')
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
@@ -38,19 +42,48 @@ export default function SchedulePage() {
   const slots = days.find((day) => day.date === activeDate)?.slots ?? []
   const hasSlot = activeDate !== null && selectedTime !== null
 
+  const mutationError = scheduleVisit.error instanceof ApiError ? scheduleVisit.error : null
+
   function handleSelectDate(date: string) {
     setSelectedDate(date)
     // The new day has its own hours, so the previous pick no longer applies
     setSelectedTime(null)
   }
 
+  function handleOpenForm() {
+    scheduleVisit.reset()
+    setStep('form')
+  }
+
+  function handleBack() {
+    if (step === 'form') {
+      scheduleVisit.reset()
+      setStep('slot')
+
+      return
+    }
+
+    navigate('/')
+  }
+
   if (!Number.isInteger(vehicleId) || vehicleId <= 0) {
     return <ErrorState title="Veículo inválido" message="O endereço não aponta para um veículo." />
   }
 
+  if (step === 'done' && scheduleVisit.data) {
+    return (
+      <AppointmentConfirmation
+        date={scheduleVisit.data.appointmentDate}
+        time={scheduleVisit.data.appointmentTime}
+        location={vehicleQuery.data?.location ?? ''}
+        onBrowseVehicles={() => navigate('/')}
+      />
+    )
+  }
+
   return (
     <Stack spacing={3}>
-      <BackLink onClick={() => (step === 'form' ? setStep('slot') : navigate('/'))} />
+      <BackLink onClick={handleBack} />
 
       {vehicleQuery.error && (
         <ErrorState
@@ -101,7 +134,7 @@ export default function SchedulePage() {
                       variant="contained"
                       size="large"
                       disabled={!hasSlot}
-                      onClick={() => setStep('form')}
+                      onClick={handleOpenForm}
                     >
                       Agendar Visita
                     </Button>
@@ -111,9 +144,26 @@ export default function SchedulePage() {
             </PanelCard>
           ) : (
             <PanelCard title="Concluir Agendamento">
-              <Typography variant="h6" component="p" align="center">
-                {formatSlotLabel(activeDate!, selectedTime!)}
-              </Typography>
+              <ScheduleForm
+                slotLabel={formatSlotLabel(activeDate!, selectedTime!)}
+                isSubmitting={scheduleVisit.isPending}
+                apiErrors={mutationError?.errors ?? {}}
+                apiMessage={mutationError?.message}
+                onSubmit={(customer) =>
+                  scheduleVisit.mutate(
+                    { ...customer, date: activeDate!, time: selectedTime! },
+                    {
+                      onSuccess: () => setStep('done'),
+                      onError: (error) => {
+                        // Someone else may have taken the slot: bring the grid up to date
+                        if (error instanceof ApiError && error.status === 409) {
+                          void availabilityQuery.refetch()
+                        }
+                      },
+                    },
+                  )
+                }
+              />
             </PanelCard>
           )}
         </Grid>
