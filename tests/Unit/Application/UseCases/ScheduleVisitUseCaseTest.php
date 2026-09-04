@@ -7,40 +7,40 @@ use PHPUnit\Framework\MockObject\MockObject;
 use App\Application\UseCases\ScheduleVisitUseCase;
 use App\Application\UseCases\GetAvailableHoursUseCase;
 use App\Domain\Repositories\AppointmentRepositoryInterface;
-use App\Domain\Repositories\VehicleRepositoryInterface;
-use App\Domain\Entities\Vehicle;
 use App\Domain\Entities\Appointment;
 use App\Application\DTOs\ScheduleVisitDTO;
 use App\Application\DTOs\AvailableHoursResponseDTO;
 use App\Application\DTOs\AppointmentResponseDTO;
+use App\Application\DTOs\VehicleResponseDTO;
+use App\Application\UseCases\GetVehicleUseCase;
 use App\Domain\Exceptions\ConflictException;
 use App\Domain\Exceptions\NotFoundException;
 
 class ScheduleVisitUseCaseTest extends TestCase
 {
     private MockObject&AppointmentRepositoryInterface $appointmentRepoMock;
-    private MockObject&VehicleRepositoryInterface $vehicleRepoMock;
+    private MockObject&GetVehicleUseCase $getVehicleUseCaseMock;
     private MockObject&GetAvailableHoursUseCase $getAvailableHoursMock;
     private ScheduleVisitUseCase $useCase;
 
     protected function setUp(): void
     {
         $this->appointmentRepoMock = $this->createMock(AppointmentRepositoryInterface::class);
-        $this->vehicleRepoMock = $this->createMock(VehicleRepositoryInterface::class);
+        $this->getVehicleUseCaseMock = $this->createMock(GetVehicleUseCase::class);
         $this->getAvailableHoursMock = $this->createMock(GetAvailableHoursUseCase::class);
 
         $this->useCase = new ScheduleVisitUseCase(
             $this->appointmentRepoMock,
-            $this->vehicleRepoMock,
+            $this->getVehicleUseCaseMock,
             $this->getAvailableHoursMock,
         );
     }
 
     public function testThrowsExceptionIfVehicleNotFound(): void
     {
-        $this->vehicleRepoMock->expects($this->once())
-            ->method('findById')
-            ->willReturn(null);
+        $this->getVehicleUseCaseMock->expects($this->once())
+            ->method('execute')
+            ->willThrowException(new NotFoundException('Vehicle not found.'));
 
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage('Vehicle not found.');
@@ -51,9 +51,9 @@ class ScheduleVisitUseCaseTest extends TestCase
 
     public function testThrowsExceptionIfTimeSlotIsUnavailable(): void
     {
-        $vehicle = new Vehicle(1, 'VW', 'Polo', '1.0', 70000.0, 'SP', 'url');
+        $vehicle = new VehicleResponseDTO(1, 'VW', 'Polo', '1.0', 70000.0, 'SP', 'url');
 
-        $this->vehicleRepoMock->method('findById')->willReturn($vehicle);
+        $this->getVehicleUseCaseMock->method('execute')->willReturn($vehicle);
 
         // Simulates that only 11:00 is available, but user wants 10:00
         $this->getAvailableHoursMock->method('execute')
@@ -68,9 +68,9 @@ class ScheduleVisitUseCaseTest extends TestCase
 
     public function testSchedulesSuccessfullyAndReturnsResponseDTO(): void
     {
-        $vehicle = new Vehicle(1, 'VW', 'Polo', '1.0', 70000.0, 'SP', 'url');
+        $vehicle = new VehicleResponseDTO(1, 'VW', 'Polo', '1.0', 70000.0, 'SP', 'url');
 
-        $this->vehicleRepoMock->method('findById')->willReturn($vehicle);
+        $this->getVehicleUseCaseMock->method('execute')->willReturn($vehicle);
 
         // Simulates that 10:00 IS available
         $this->getAvailableHoursMock->method('execute')
