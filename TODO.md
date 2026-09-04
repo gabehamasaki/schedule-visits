@@ -9,19 +9,22 @@
 - [x] DTOs de entrada/saída
 - [x] Injeção de dependência (PHP-DI)
 - [x] Controllers Vehicle, Appointment e Availability
-- [x] Registrar rotas em `routes/web.php` (vehicles, appointments e available-hours)
+- [x] Registrar rotas em `routes/web.php` (vehicles, appointments e availability)
 - [x] Validação de input (email, telefone, campos obrigatórios) — `ScheduleVisitDTO::validate()`
 - [x] Padronizar resposta de sucesso/erro — `Response::success/created/error`
 - [x] Status HTTP corretos por tipo de erro (400/404/409) — via hierarquia de `DomainException`
 
 ## Frontend
 
-- [ ] Setup do projeto (React + TS + MUI + Tanstack Query)
-- [ ] Tela com detalhes do veículo
-- [ ] Seleção de dia e horário disponível
+- [x] Setup do projeto (Vite + React + TS + MUI + Tanstack Query)
+- [x] Cliente da API tipado (`src/api`) + hooks do Tanstack Query (`src/hooks`)
+- [x] Tema MUI com a paleta da marca, logo de `public/` e rotas do cliente
+- [x] Tela inicial com a listagem dos veículos
+- [x] Tela com detalhes do veículo — `VehicleCard` reusado na listagem e no agendamento
+- [x] Seleção de dia e horário disponível — chips paginados, reservados e vencidos desabilitados
+- [x] Loading/erro na busca de horários — skeletons, `ErrorState` e botão de tentar novamente
 - [ ] Formulário com dados do cliente
 - [ ] Tela de confirmação do agendamento
-- [ ] Loading/erro na busca de horários
 
 ## Banco de dados
 
@@ -33,17 +36,22 @@
 
 - [x] Testes unitários (entidades, use cases, repositórios)
 - [x] PHPStan nível 8
+- [x] Lint do frontend (oxlint, via template do Vite)
 - [ ] Teste de integração batendo na API de verdade
+- [ ] Testes do frontend (componentes de seleção de dia/hora e fluxo de agendamento)
 
 ## Docker
 
 - [x] docker-compose com API + Postgres
-- [ ] Subir o frontend também no compose
+- [x] Subir o frontend também no compose — build multi-stage, nginx servindo o bundle e fazendo proxy de `/api`
+- [x] Healthcheck do container web
+- [x] Separar o repositório em `backend/` e `frontend/`
 
 ## Documentação
 
 - [ ] README com setup e decisões do projeto
 - [ ] Lista de endpoints da API
+- [ ] Seção "fora do escopo" (feriados e exceções de calendário, horários por loja)
 
 ## Melhorias
 
@@ -53,9 +61,10 @@
 - [x] Horários de atendimento configuráveis em vez de array hardcoded — value object `BusinessHours` montado a partir de `config/schedule.php` + variáveis de ambiente
 - [x] Separar horário fora do expediente (400) de horário já reservado (409) — `ScheduleVisitUseCase` distingue slot inexistente de slot ocupado
 - [x] Agenda persistida em `vehicle_availability_slots` — grade por dia/veículo, disponibilidade via anti-join com `appointments`
-- [x] Bloquear agendamento em data passada — `ClockInterface` injetado, horários vencidos saem da resposta
+- [x] Bloquear agendamento em data passada — `ClockInterface` injetado, validado no `ScheduleVisitUseCase`
 - [x] Timezone explícito na comparação de data/hora — `APP_TIMEZONE` no `SystemClock` e no `date_default_timezone_set`
-- [x] Seeder de veículos duplica registros quando `bin/migrate.php` roda sem `--drop`
+- [x] Seeder de veículos idempotente — unique index em `(brand, model, version)` + `ON CONFLICT DO NOTHING`
+- [x] Grade completa do dia com sinalizador `available` — horário reservado ou vencido volta desabilitado em vez de ausente
 
 ## Por último
 
