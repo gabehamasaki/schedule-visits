@@ -25,7 +25,6 @@
 - [x] Loading/erro na busca de horários - skeletons, `ErrorState` e botão de tentar novamente
 - [x] Formulário com dados do cliente - validação local espelhando o DTO e erros por campo vindos da API
 - [x] Tela de confirmação do agendamento - dados vindos da resposta do POST
-- [ ] Code splitting das páginas (bundle único passou de 500 kB)
 
 ## Banco de dados
 
@@ -38,7 +37,6 @@
 - [x] Testes unitários (entidades, use cases, repositórios)
 - [x] PHPStan nível 8
 - [x] Lint do frontend (oxlint, via template do Vite)
-- [ ] Teste de integração batendo na API de verdade
 - [x] Testes do frontend - Vitest + Testing Library, 26 testes (formatadores, pickers, formulário e fluxo de agendamento)
 
 ## Docker
