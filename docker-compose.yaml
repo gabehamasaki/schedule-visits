@@ -6,9 +6,6 @@ services:
     container_name: schedule_api
     ports:
       - "8080:80"
-    # No bind mount on purpose: the image carries the source and the vendor
-    # install, so a fresh clone comes up with `docker compose up` alone.
-    # For editing the code with reload, see "Sem Docker" in the README.
     env_file:
       - ./backend/.env
     depends_on:
