@@ -6,9 +6,6 @@ backend/vendor/
 .phpunit.result.cache
 .phpunit.cache
 
-# PHPUnit
-backend/phpunit.xml
-
 # Build data
 /build/
 

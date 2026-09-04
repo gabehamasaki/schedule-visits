@@ -33,7 +33,7 @@ fresh: ## Recria o banco do zero
 test: test-backend test-frontend ## Roda a bateria completa de testes
 
 test-backend: ## PHPUnit
-	cd $(BACKEND) && vendor/bin/phpunit tests
+	cd $(BACKEND) && vendor/bin/phpunit
 
 test-frontend: ## Vitest
 	cd $(FRONTEND) && npm run test
