@@ -6,8 +6,10 @@ use App\Domain\ValueObjects\BusinessHours;
 use App\Infrastructure\Database\PdoConnection;
 use Dotenv\Dotenv;
 
+// In Docker the settings arrive as real environment variables, so the .env
+// file is optional here: safeLoad() keeps both setups working.
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
+$dotenv->safeLoad();
 
 $schedule = require __DIR__ . '/../config/schedule.php';
 date_default_timezone_set($schedule['timezone']);

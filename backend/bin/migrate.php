@@ -5,8 +5,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Infrastructure\Database\PdoConnection;
 use Dotenv\Dotenv;
 
+// In Docker the settings arrive as real environment variables, so the .env
+// file is optional here: safeLoad() keeps both setups working.
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
+$dotenv->safeLoad();
 
 $shouldDrop = in_array('--drop', $argv, true);
 

@@ -6,8 +6,10 @@ use App\Infrastructure\Http\Response;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// In Docker the settings arrive as real environment variables, so the .env
+// file is optional here: safeLoad() keeps both setups working.
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
+$dotenv->safeLoad();
 
 // Keep PHP's default timezone aligned with the scheduling timezone, so libraries
 // that do not receive the clock still agree on what "today" means.
