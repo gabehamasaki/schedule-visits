@@ -25,7 +25,7 @@
 
 ## Banco de dados
 
-- [x] Migrations (vehicles, appointments)
+- [x] Migrations (vehicles, appointments, vehicle_availability_slots)
 - [x] Seed inicial
 - [x] Trocar as imagens do seed (fotos reais de cada modelo via Wikimedia Commons, licença CC BY-SA/domínio público) e aumentar a quantidade de veículos (2 -> 8)
 
@@ -51,10 +51,12 @@
 - [x] Exceptions próprias em vez de Exception genérica — `DomainException` e subclasses em todo o `src/`
 - [x] Validar email/telefone de forma mais robusta — `filter_var(FILTER_VALIDATE_EMAIL)` + regex de dígitos no `ScheduleVisitDTO`
 - [x] Horários de atendimento configuráveis em vez de array hardcoded — value object `BusinessHours` montado a partir de `config/schedule.php` + variáveis de ambiente
-- [x] Separar horário fora do expediente (400) de horário já reservado (409) — `ScheduleVisitUseCase` valida contra `BusinessHours` antes de consultar disponibilidade
-- [ ] Bloquear agendamento em data passada
-- [ ] Fim de semana e feriados fora da grade de horários
-- [ ] Timezone explícito na comparação de data/hora
+- [x] Separar horário fora do expediente (400) de horário já reservado (409) — `ScheduleVisitUseCase` distingue slot inexistente de slot ocupado
+- [x] Agenda persistida em `vehicle_availability_slots` — grade por dia/veículo, disponibilidade via anti-join com `appointments`
+- [x] Bloquear agendamento em data passada — `ClockInterface` injetado, horários vencidos saem da resposta
+- [x] Timezone explícito na comparação de data/hora — `APP_TIMEZONE` no `SystemClock` e no `date_default_timezone_set`
+- [ ] Fim de semana e feriados fora da grade de horários — hoje a grade é uniforme; ponto de extensão é `bin/generate-slots.php`
+- [ ] Seeder de veículos duplica registros quando `bin/migrate.php` roda sem `--drop`
 
 ## Por último
 
