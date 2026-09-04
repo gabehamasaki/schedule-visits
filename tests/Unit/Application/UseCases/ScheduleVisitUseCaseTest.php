@@ -15,6 +15,8 @@ use App\Application\DTOs\VehicleResponseDTO;
 use App\Application\UseCases\GetVehicleUseCase;
 use App\Domain\Exceptions\ConflictException;
 use App\Domain\Exceptions\NotFoundException;
+use App\Domain\Exceptions\ValidationException;
+use App\Domain\ValueObjects\BusinessHours;
 
 class ScheduleVisitUseCaseTest extends TestCase
 {
@@ -33,6 +35,7 @@ class ScheduleVisitUseCaseTest extends TestCase
             $this->appointmentRepoMock,
             $this->getVehicleUseCaseMock,
             $this->getAvailableHoursMock,
+            BusinessHours::fromRange('09:00', '18:00', 60)
         );
     }
 
@@ -43,7 +46,7 @@ class ScheduleVisitUseCaseTest extends TestCase
             ->willThrowException(new NotFoundException('Vehicle not found.'));
 
         $this->expectException(NotFoundException::class);
-        $this->expectExceptionMessage('Vehicle not found.');
+        $this->expectExceptionMessageIs('Vehicle not found.');
 
         $dto = new ScheduleVisitDTO(999, 'Test', 'test@test.com', '11', '2026-09-02', '10:00');
         $this->useCase->execute($dto);
@@ -60,7 +63,7 @@ class ScheduleVisitUseCaseTest extends TestCase
             ->willReturn(new AvailableHoursResponseDTO(['11:00']));
 
         $this->expectException(ConflictException::class);
-        $this->expectExceptionMessage('This time slot is not available or outside business hours.');
+        $this->expectExceptionMessageIs('This time slot is already booked.');
 
         $dto = new ScheduleVisitDTO(1, 'Test', 'test@test.com', '11', '2026-09-02', '10:00');
         $this->useCase->execute($dto);
@@ -87,5 +90,26 @@ class ScheduleVisitUseCaseTest extends TestCase
 
         $this->assertInstanceOf(AppointmentResponseDTO::class, $response);
         $this->assertEquals(15, $response->id);
+    }
+
+    public function testThrowsValidationExceptionForTimeOutsideBusinessHours(): void
+    {
+        // 19:00 is a well formed HH:MM, but it is not part of the 09:00-18:00 grid,
+        // so it must be rejected before any vehicle or availability lookup happens.
+        $this->getVehicleUseCaseMock->expects($this->never())->method('execute');
+        $this->getAvailableHoursMock->expects($this->never())->method('execute');
+        $this->appointmentRepoMock->expects($this->never())->method('save');
+
+        $dto = new ScheduleVisitDTO(1, 'Test', 'test@test.com', '11', '2026-09-02', '19:00');
+
+        try {
+            $this->useCase->execute($dto);
+            $this->fail('Expected a ValidationException to be thrown.');
+        } catch (ValidationException $e) {
+            $this->assertSame(
+                ['time' => 'The requested time is outside of business hours.'],
+                $e->getDetails()
+            );
+        }
     }
 }
