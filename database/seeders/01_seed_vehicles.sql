@@ -70,4 +70,4 @@ VALUES (
         138000.00,
         'Ribeirão Preto - SP',
         'https://commons.wikimedia.org/wiki/Special:FilePath/2022%20Hyundai%20Creta%20SE.jpg'
-    ) ON CONFLICT (id) DO NOTHING;
+    ) ON CONFLICT (brand, model, version) DO NOTHING;
