@@ -7,6 +7,7 @@ use App\Application\UseCases\GetAvailableHoursUseCase;
 use App\Domain\Repositories\AppointmentRepositoryInterface;
 use App\Application\DTOs\GetAvailableHoursDTO;
 use App\Application\DTOs\AvailableHoursResponseDTO;
+use App\Domain\ValueObjects\BusinessHours;
 
 class GetAvailableHoursUseCaseTest extends TestCase
 {
@@ -21,7 +22,7 @@ class GetAvailableHoursUseCaseTest extends TestCase
             ->with(1, '2026-09-02')
             ->willReturn(['10:00:00', '14:00:00']);
 
-        $useCase = new GetAvailableHoursUseCase($repositoryMock);
+        $useCase = new GetAvailableHoursUseCase($repositoryMock, BusinessHours::fromRange('09:00', '18:00', 60));
 
         $dto = new GetAvailableHoursDTO(
             vehicleId: 1,
