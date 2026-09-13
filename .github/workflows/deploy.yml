@@ -3,7 +3,10 @@ name: deploy
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "v*"
+      - "dev/**"
+      - "hg/**"
 
 env:
   REGISTRY: ghcr.io
@@ -19,6 +22,41 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validar tag e ambiente
+        id: meta
+        run: |
+          set -euo pipefail
+          ref="${GITHUB_REF_NAME}"
+          case "$ref" in
+            dev/*) deploy_env=dev; kust_subpath="/overlays/dev" ;;
+            hg/*) deploy_env=homolog; kust_subpath="/overlays/homolog" ;;
+            v*) deploy_env=production; kust_subpath="" ;;
+            *)
+              echo "tag não suportada: $ref"
+              exit 1
+              ;;
+          esac
+          deploy_branch=main
+          case "$ref" in
+            v*) deploy_branch=main ;;
+            dev/*) deploy_branch=main ;;
+            hg/*) deploy_branch=main ;;
+          esac
+          git fetch origin "$deploy_branch" --depth=1
+          git merge-base --is-ancestor "$GITHUB_SHA" "origin/$deploy_branch"
+          image_tag="${ref//\//-}"
+          if [ "$deploy_env" = "production" ]; then
+            kust_path="${{ env.APP_PATH }}"
+          else
+            kust_path="${{ env.APP_PATH }}${kust_subpath}"
+          fi
+          echo "deploy_env=$deploy_env" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$image_tag" >> "$GITHUB_OUTPUT"
+          echo "kust_path=$kust_path" >> "$GITHUB_OUTPUT"
+          echo "git_tag=$ref" >> "$GITHUB_OUTPUT"
 
       - name: Login no GHCR
         uses: docker/login-action@v3
@@ -33,9 +71,7 @@ jobs:
           context: ./backend
           file: backend/docker/Dockerfile
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_API }}:${{ github.sha }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_API }}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_API }}:${{ steps.meta.outputs.image_tag }}
 
       - name: Build e push do web
         uses: docker/build-push-action@v6
@@ -43,9 +79,7 @@ jobs:
           context: ./frontend
           file: frontend/docker/Dockerfile
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:${{ github.sha }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:${{ steps.meta.outputs.image_tag }}
 
       - name: Checkout do repo infra
         uses: actions/checkout@v4
@@ -54,21 +88,30 @@ jobs:
           token: ${{ secrets.INFRA_REPO_TOKEN }}
           path: infra
 
+      - name: Verificar overlay do ambiente
+        run: |
+          set -euo pipefail
+          kust="infra/${{ steps.meta.outputs.kust_path }}/kustomization.yaml"
+          if [ ! -f "$kust" ]; then
+            echo "ambiente ${{ steps.meta.outputs.deploy_env }} não provisionado no infra"
+            exit 1
+          fi
+
       - name: Instalar kustomize
         uses: imranismail/setup-kustomize@v2
 
       - name: Atualizar tags no repo infra
-        working-directory: infra/${{ env.APP_PATH }}
+        working-directory: infra/${{ steps.meta.outputs.kust_path }}
         run: |
-          kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_API }}=${{ env.REGISTRY }}/${{ env.IMAGE_API }}:${{ github.sha }}
-          kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}=${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:${{ github.sha }}
+          kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_API }}=${{ env.REGISTRY }}/${{ env.IMAGE_API }}:${{ steps.meta.outputs.image_tag }}
+          kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}=${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:${{ steps.meta.outputs.image_tag }}
 
       - name: Commit e push no repo infra
         working-directory: infra
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ${{ env.APP_PATH }}/kustomization.yaml
+          git add ${{ steps.meta.outputs.kust_path }}/kustomization.yaml
           git diff --cached --quiet && exit 0
-          git commit -m "deploy: ${{ env.IMAGE_API }}+${{ env.IMAGE_WEB }}@${{ github.sha }}"
+          git commit -m "deploy(${{ steps.meta.outputs.deploy_env }}): ${{ env.IMAGE_API }}+${{ env.IMAGE_WEB }}@${{ steps.meta.outputs.git_tag }}"
           git push

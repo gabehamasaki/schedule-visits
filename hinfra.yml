@@ -1,12 +1,40 @@
 # hinfra.yml — binding explícito projeto ↔ infra
 app: schedule-visits
 appPath: apps/schedule-visits
-exposure: public
+namespace: schedule-visits
 host: schedule-visits.hamasakis.dev
+exposure: public
 images:
   api: gabehamasaki/schedule-visits-api
   web: gabehamasaki/schedule-visits-web
-namespace: schedule-visits
+buildContexts:
+  api:
+    context: ./backend
+    file: backend/docker/Dockerfile
+  web:
+    context: ./frontend
+    file: frontend/docker/Dockerfile
 routing:
   apiPath: /api
   webPath: /
+environments:
+  production:
+    enabled: true
+    tagPrefix: v
+    branch: main
+    appPath: apps/schedule-visits
+    namespace: schedule-visits
+  dev:
+    enabled: false
+    tagPrefix: dev/
+    branch: main
+    appPath: apps/schedule-visits/overlays/dev
+    namespace: schedule-visits-dev
+    host: schedule-visits.dev.hamasakis.dev
+  homolog:
+    enabled: false
+    tagPrefix: hg/
+    branch: main
+    appPath: apps/schedule-visits/overlays/homolog
+    namespace: schedule-visits-hg
+    host: schedule-visits.hg.hamasakis.dev
