@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./backend
-          file: docker/Dockerfile
+          file: backend/docker/Dockerfile
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_API }}:${{ github.sha }}
@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
-          file: docker/Dockerfile
+          file: frontend/docker/Dockerfile
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:${{ github.sha }}
