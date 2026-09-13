@@ -1,0 +1,12 @@
+# hinfra.yml — binding explícito projeto ↔ infra
+app: schedule-visits
+appPath: apps/schedule-visits
+exposure: public
+host: schedule-visits.hamasakis.dev
+images:
+  api: gabehamasaki/schedule-visits-api
+  web: gabehamasaki/schedule-visits-web
+namespace: schedule-visits
+routing:
+  apiPath: /api
+  webPath: /
