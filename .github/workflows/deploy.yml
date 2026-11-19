@@ -1,4 +1,5 @@
-# Monorepo (api + web) — schedule-visits. Requer HINFRA_WORKLOADS_TOKEN no repo.
+# API do schedule-visits no cluster. O frontend é publicado pela Vercel (vercel-deploy.yml).
+# Requer INFRA_REPO_TOKEN no repo, com escrita no hinfra-workloads.
 name: deploy
 
 on:
@@ -12,7 +13,6 @@ env:
   REGISTRY: ghcr.io
   APP_PATH: apps/schedule-visits
   IMAGE_API: gabehamasaki/schedule-visits-api
-  IMAGE_WEB: gabehamasaki/schedule-visits-web
 
 jobs:
   build-and-deploy:
@@ -73,25 +73,17 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_API }}:${{ steps.meta.outputs.image_tag }}
 
-      - name: Build e push do web
-        uses: docker/build-push-action@v6
-        with:
-          context: ./frontend
-          file: frontend/docker/Dockerfile
-          push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:${{ steps.meta.outputs.image_tag }}
-
       - name: Checkout do repo hinfra-workloads
         uses: actions/checkout@v4
         with:
           repository: gabehamasaki/hinfra-workloads
-          token: ${{ secrets.HINFRA_WORKLOADS_TOKEN }}
+          token: ${{ secrets.INFRA_REPO_TOKEN }}
           path: workloads
 
       - name: Verificar overlay do ambiente
         run: |
           set -euo pipefail
-          kust="infra/${{ steps.meta.outputs.kust_path }}/kustomization.yaml"
+          kust="workloads/${{ steps.meta.outputs.kust_path }}/kustomization.yaml"
           if [ ! -f "$kust" ]; then
             echo "ambiente ${{ steps.meta.outputs.deploy_env }} não provisionado no infra"
             exit 1
@@ -104,14 +96,13 @@ jobs:
         working-directory: workloads/${{ steps.meta.outputs.kust_path }}
         run: |
           kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_API }}=${{ env.REGISTRY }}/${{ env.IMAGE_API }}:${{ steps.meta.outputs.image_tag }}
-          kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}=${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:${{ steps.meta.outputs.image_tag }}
 
       - name: Commit e push no repo workloads
-        working-directory: infra
+        working-directory: workloads
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add ${{ steps.meta.outputs.kust_path }}/kustomization.yaml
           git diff --cached --quiet && exit 0
-          git commit -m "deploy(${{ steps.meta.outputs.deploy_env }}): ${{ env.IMAGE_API }}+${{ env.IMAGE_WEB }}@${{ steps.meta.outputs.git_tag }}"
+          git commit -m "deploy(${{ steps.meta.outputs.deploy_env }}): ${{ env.IMAGE_API }}@${{ steps.meta.outputs.git_tag }}"
           git push

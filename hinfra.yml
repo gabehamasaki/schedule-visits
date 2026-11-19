@@ -6,17 +6,12 @@ host: schedule-visits.hamasakis.dev
 exposure: public
 images:
   api: gabehamasaki/schedule-visits-api
-  web: gabehamasaki/schedule-visits-web
 buildContexts:
   api:
     context: ./backend
     file: backend/docker/Dockerfile
-  web:
-    context: ./frontend
-    file: frontend/docker/Dockerfile
 routing:
   apiPath: /api
-  webPath: /
 environments:
   production:
     enabled: true
