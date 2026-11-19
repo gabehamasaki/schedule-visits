@@ -10,6 +10,8 @@ backend/vendor/
 /build/
 
 .env
+# Template com referências op:// (sem valores); o ~/.gitignore global ignora .env*
+!.env.tpl
 
 # PHP CS Fixer configuration
 backend/.php-cs-fixer.cache
